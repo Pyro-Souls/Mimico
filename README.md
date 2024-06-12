@@ -1,2 +1,2 @@
-y j h# Mimico
+# Mimico
 Mimico App 
