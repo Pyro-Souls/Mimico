@@ -47,26 +47,26 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    try {
-      const googlelogin = logInWithGoogle();
-      if (googlelogin != undefined) {
-        setLoading(false);
-        console.log("User logged in with Google", googlelogin);
-        //This clears navigation history and pushes to the home screen so you can't go back to the register/login screen
-        if (router.canDismiss()) router.dismissAll();
-        router.push('home');
-      }
-      else {
-        setLoading(false);
-        console.log("Google login failed");
-      }
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  }
+  // const handleGoogleLogin = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const googlelogin = logInWithGoogle();
+  //     if (googlelogin != undefined) {
+  //       setLoading(false);
+  //       console.log("User logged in with Google", googlelogin);
+  //       //This clears navigation history and pushes to the home screen so you can't go back to the register/login screen
+  //       if (router.canDismiss()) router.dismissAll();
+  //       router.push('home');
+  //     }
+  //     else {
+  //       setLoading(false);
+  //       console.log("Google login failed");
+  //     }
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.log(error);
+  //   }
+  // }
 
   return (
     <View style={styles.container}>
@@ -91,7 +91,7 @@ export default function Login() {
         <>
           <Button title="Login" onPress={handleLogin} />
           <Button title="Register" onPress={() => router.push('register')} />
-            <Button title="Log in with Google" onPress={handleGoogleLogin} />
+          {/* <Button title="Log in with Google" onPress={handleGoogleLogin} /> */}
         </>
       )}
     </View>
