@@ -1,13 +1,12 @@
 import {View, Text, StyleSheet, Button} from 'react-native';
 import {useNavigation, router} from 'expo-router';
 import {useEffect} from 'react';
+import { logout } from '../../../services/Auth.service';
 
 export default function Tab() {
-    const navigation = useNavigation();
-
-    const handleLogOut = () => {
-        //Log Out Logic here
-
+    const handleLogOut = async () => {
+        logout();
+        
         //This clears navigation history and goes back to the first screen 
         if (router.canDismiss()) router.dismissAll();
     };

@@ -5,12 +5,7 @@ import { router } from 'expo-router';
 
 export default function Tab() {
 
-    // const handleLogOut = () => {
-    //     //Log Out Logic here
 
-    //     if (router.canDismiss()) router.dismissAll();
-    //     router.push('');
-    // };
     return (
         <View style={styles.container}>
             <Text>Tab [Home]</Text>

@@ -1,53 +1,81 @@
 import { useEffect, useState } from 'react';
 import { router, useNavigation } from 'expo-router';
 import { Button, TextInput, Text, View, ActivityIndicator, StyleSheet } from 'react-native';
+import { onAuthStateChanged } from "firebase/auth";
+
+import {logIn, logInWithGoogle} from '../services/Auth.service';
+import { auth } from '../services/firebase';
 
 export default function Login() {
-  const navigation = useNavigation();
-
+  //const navigation = useNavigation();
+  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   navigation.setOptions({ headerShown: false });
-  // }, [navigation]);
+  useEffect(() => {
+    // onAuthStateChanged(auth, async user => {
+    //   if (user) {
+    //     console.log('user', user, ' userId:', user.uid, "User logged");
+    //     //Add logic to us userContext maybe
+    //     router.push("pages/Home")
+    //   } else {
+    //     console.log("No user logged");
+    //   }
+    // })
+    // navigation.setOptions({ headerShown: false });
+  }, [/*navigation*/]);
 
   const handleLogin = async () => {
-    // setIsLoading(true);
-    // setError('');
-
-    // // Simulate login logic - replace with actual authentication call
-    // try {
-    //   // Example: await authenticate(username, password);
-    //   setTimeout(() => {
-    //     setIsLoading(false);
-    //     // On successful login
-    //     if (username === 'user' && password === 'pass') {
-    //       router.push("home");
-    //     } else {
-    //       setError('Invalid username or password');
-    //     }
-    //   }, 1000);
-    // } catch (error) {
-    //   setIsLoading(false);
-    //   setError('Login failed. Please try again later.');
-    // }
-
-    if (router.canDismiss()) router.dismissAll();
+    setLoading(true);
+    setError('');
+    try {
+      const login = await logIn(email, password)
+      if (login) {
+        setLoading(false);
+        if (router.canDismiss()) router.dismissAll();
         router.push('home');
+        } else {
+          setError('Invalid email or password');
+          setLoading(false);
+        }
+    } catch (error) {
+      setLoading(false);
+      setError('Login failed. Please try again later.');
+    }
   };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const googlelogin = logInWithGoogle();
+      if (googlelogin != undefined) {
+        setLoading(false);
+        console.log("User logged in with Google", googlelogin);
+        //This clears navigation history and pushes to the home screen so you can't go back to the register/login screen
+        if (router.canDismiss()) router.dismissAll();
+        router.push('home');
+      }
+      else {
+        setLoading(false);
+        console.log("Google login failed");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  }
 
   return (
     <View style={styles.container}>
       <Text>This is the Login Page</Text>
       <TextInput
         style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="email" //Should be email and username
+        value={email}
+        onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
@@ -57,12 +85,13 @@ export default function Login() {
         onChangeText={setPassword}
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      {isLoading ? (
+      {loading ? (
         <ActivityIndicator />
       ) : (
         <>
           <Button title="Login" onPress={handleLogin} />
           <Button title="Register" onPress={() => router.push('register')} />
+            <Button title="Log in with Google" onPress={handleGoogleLogin} />
         </>
       )}
     </View>
