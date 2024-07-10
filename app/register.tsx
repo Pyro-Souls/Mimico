@@ -39,6 +39,10 @@ const Register: React.FC = () => {
         };
     };
 
+    const handleBackToLogin = () => {
+        if (router.canDismiss()) router.dismissAll();
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Register</Text>
@@ -81,6 +85,8 @@ const Register: React.FC = () => {
                 onChangeText={setConfirmPassword}
             />
             <Button title="Register" onPress={handleRegister} />
+            <Button title="Back to Login" onPress={handleBackToLogin} // Adjust this line if using a custom navigation method
+            />
         </View>
     );
 };

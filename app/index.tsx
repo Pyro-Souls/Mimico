@@ -16,17 +16,15 @@ export default function Login() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // onAuthStateChanged(auth, async user => {
-    //   if (user) {
-    //     console.log('user', user, ' userId:', user.uid, "User logged");
-    //     //Add logic to us userContext maybe
-    //     router.push("pages/Home")
-    //   } else {
-    //     console.log("No user logged");
-    //   }
-    // })
-    // navigation.setOptions({ headerShown: false });
-  }, [/*navigation*/]);
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        console.log('User logged in:', user.uid);
+        router.push('home');
+      } else {
+        console.log("No user logged in");
+      }
+    });
+  }, []);
 
   const handleLogin = async () => {
     setLoading(true);
