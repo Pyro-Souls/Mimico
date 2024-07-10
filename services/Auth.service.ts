@@ -1,3 +1,4 @@
+import * as Google from 'expo-auth-session/providers/google';
 import { doc, updateDoc } from "firebase/firestore";
 import { 
     auth, 
@@ -14,6 +15,7 @@ import {
 
 import { createUser, getUserById } from "./User.service";
 import { userData } from "../common/types/User";
+import { signInWithCredential } from "firebase/auth";
 
 export const signUp = async (username: string , name:string, lastName: string, email: string, password: string) => {
     try {
@@ -79,21 +81,43 @@ export const logIn = async (email: string, password: string) => {
 // };
 
 export const logInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    console.log("User logged in with google", user);
+  try {
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+      clientId: process.env.EXPO_PUBLIC_CLIENT_ID,
+    });
 
-    const u = await getUserById(user.uid) as userData;
-    if (!u) {
-        const newUser = {
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName,
-            date: new Date(),
-        } as userData;
+    if (response?.type === 'success') {
+      const { idToken } = response.params;
+      const credential = GoogleAuthProvider.credential(idToken);
+      const auth = getAuth();
+      const userCredential = await signInWithCredential(auth, credential);
+      const user = userCredential.user;
+      console.log("User logged in with Google:", user);
+
+      const u = await getUserById(user.uid) as userData;
+      if (!u) {
+        const newUser: userData = {
+          uid: user.uid,
+          username: null,
+          email: user.email,
+          name: user.displayName,
+          lastName: null,
+          date: new Date(),
+        };
+        console.log(newUser);
+
+        const userCreatedId = await createUser(newUser);
+        console.log("Google user created:", userCreatedId);
+      }
+      return user.uid;
+    } else {
+      console.log("Google login cancelled or failed");
+      return null;
     }
-    return user.uid;
+  } catch (error) {
+    console.error("Failed to log in with Google:", error);
+    return null;
+  }
 };
 
 // export const EditProfile = async (uid, name, email,date) => {
