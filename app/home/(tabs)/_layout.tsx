@@ -21,6 +21,14 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="ficha"
+        options={{
+          title: 'Ficha de Personaje',
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="image" color={color} />,
+        }}
+      />
+      
     </Tabs>
   );
 }
