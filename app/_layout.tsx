@@ -1,28 +1,35 @@
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
+import DefaultTheme from "../core/theme/defaultTheme";
 
 const RootLayout = () => {
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#f4511e',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-        }}>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#f4511e",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+        }}
+      >
         {/* Optionally configure static options outside the route.*/}
-        <Stack.Screen name="index" options={{/*headerShown: false*/
-            headerTitle: 'Login',
-        }} />
-        <Stack.Screen name="register" options={{/*headerShown: false*/
-            headerTitle: 'Register'
-        }} />
-        <Stack.Screen name="home" options={{headerShown: false}} />
-        
-    </Stack>
+        <Stack.Screen
+          name="index"
+          options={{
+            /*headerShown: false*/ headerTitle: "Login",
+          }}
+        />
+        <Stack.Screen
+          name="register"
+          options={{
+            /*headerShown: false*/ headerTitle: "Register",
+          }}
+        />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
+      </Stack>
   );
-}
+};
 
 export default RootLayout;

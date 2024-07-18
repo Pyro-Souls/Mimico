@@ -1,0 +1,1 @@
+export { useFont } from "./useFont"
