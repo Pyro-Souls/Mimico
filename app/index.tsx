@@ -6,6 +6,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import {logIn, logInWithGoogle} from '../services/Auth.service';
 import { auth } from '../services/firebase';
 
+import useStore from '../providers/store';
+import { getUserById } from '../services/User.service';
+
 export default function Login() {
   //const navigation = useNavigation();
   const [email, setEmail] = useState('');
@@ -15,10 +18,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const { setUser } = useStore();
+
   useEffect(() => {
-    onAuthStateChanged(auth, user => {
+    //This checks if the user is already logged in
+    onAuthStateChanged(auth, async user => {
       if (user) {
-        console.log('User logged in:', user.uid);
+        console.log('User logged in (AuthState):', user.uid);
+        const u = await getUserById(user.uid);
+        setUser(u);
         router.push('home');
       } else {
         console.log("No user logged in");
@@ -33,6 +41,8 @@ export default function Login() {
       const login = await logIn(email, password)
       if (login) {
         setLoading(false);
+        console.log("User logged in (handleLogin)", login);
+        //setUser(login);
         if (router.canDismiss()) router.dismissAll();
         router.push('home');
         } else {
