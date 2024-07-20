@@ -1,22 +1,29 @@
 import { themes } from "./themes";
 import { ThemeProvider } from "styled-components";
-import { createContext, FC, useState } from "react";
-import { TDefaultTheme, TDefaultThemeContext } from "./types";
+import { FC, useState, useEffect, createContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TDefaultTheme, TDefaultThemeContext, ThemeKeys } from "./types";
 
 export const ThemeContext = createContext<TDefaultThemeContext>(
   {} as TDefaultThemeContext
 );
 
 const DefaultTheme: FC<{ children: JSX.Element }> = ({ children }) => {
-  const [theme, setTheme] = useState<TDefaultTheme>(() => {
-    const lsTheme = AsyncStorage.getItem("theme") || "light";
-    return themes["light"];
-  });
+  const [theme, setTheme] = useState<TDefaultTheme>(themes.light);
 
-  const changeTheme = () => {
-    const key = AsyncStorage.setItem("theme", theme?.key);
-    setTheme(themes[key as never]);
+  useEffect(() => {
+    const loadTheme = async () => {
+      const lsTheme = await AsyncStorage.getItem("theme");
+      if (lsTheme && themes[lsTheme as ThemeKeys]) {
+        setTheme(themes[lsTheme as ThemeKeys]);
+      }
+    };
+    loadTheme();
+  }, []);
+
+  const changeTheme = async (key: ThemeKeys = "light") => {
+    await AsyncStorage.setItem("theme", key);
+    setTheme(themes[key]);
   };
 
   return (

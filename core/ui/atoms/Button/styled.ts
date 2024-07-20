@@ -15,14 +15,14 @@ export const Touchable = styled.TouchableOpacity<ITouchable>`
       ? theme?.colors?.main?.[type as never]
       : "transparent"};
 
-  /* border: ${({ variant, theme }) =>
+  border: ${({ variant, theme }) =>
     variant === "text"
       ? "0px"
       : variant === "dashed"
       ? `3px dashed ${theme?.colors?.border?.secondary}`
       : variant === "outline"
       ? `3px solid ${theme?.colors?.border?.secondary}`
-      : `3px solid ${theme?.colors?.border?.default}`}; */
+      : `3px solid ${theme?.colors?.border?.default}`};
 `;
 
 export const Title = styled.Text<ITitleColor>`

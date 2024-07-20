@@ -20,17 +20,18 @@ export const RadioButton = styled.TouchableOpacity`
   width: 25px;
   height: 25px;
   align-items: center;
-  border: 3px solid black;
   justify-content: center;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
+  border: 3px solid ${({ theme }) => theme?.colors?.main.brown};
 `;
 
 export const RadioLabel = styled.Text`
   font-size: 16px;
-  font-weight: 500;
+  font-weight: OutfitRegular;
+  color: ${({ theme }) => theme?.colors?.main.brown};
 `;
 
 export const RadioSelected = styled.View`
@@ -41,4 +42,5 @@ export const RadioSelected = styled.View`
   border-top-right-radius: 20px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
+  border: 3px solid ${({ theme }) => theme?.colors?.main.brownAccent};
 `;

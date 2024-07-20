@@ -1,18 +1,14 @@
 export type TDefaultThemeContext = {
   theme?: TDefaultTheme;
-  changeTheme: () => void;
+  changeTheme: (key: ThemeKeys) => void;
 };
 
-export type ThemeKeys = "light" | "dark";
+export type ThemeKeys = "light" | "green" | "blue";
 
 export type TDefaultTheme = {
-  key: "light" | "dark";
-  colors: IGlobalTheme;
+  key: ThemeKeys;
+  colors: Theme;
 };
-
-interface IGlobalTheme {
-  light: Theme;
-}
 
 interface ColorPalette {
   primary: string;

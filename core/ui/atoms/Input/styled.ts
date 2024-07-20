@@ -1,4 +1,3 @@
-// import { GlobalTheme } from "../theme";
 import { IInputGenerics } from "./interface";
 import styled from "styled-components/native";
 
@@ -16,6 +15,6 @@ export const InputCustom = styled.TextInput<IInputGenerics>`
   border-radius: 5px;
   font-family: OutfitSemibold;
   height: ${({ multiline }) => (multiline ? "110px" : "50px")};
-  /* border: 3px solid ${({}) => GlobalTheme?.light?.border?.default}; */
-  /* background-color: ${({}) => GlobalTheme?.light?.background?.main}; */
+  border: 3px solid ${({theme}) => theme?.colors?.border?.default};
+  background-color: ${({theme}) => theme?.colors?.background?.main};
 `;

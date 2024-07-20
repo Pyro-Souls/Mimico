@@ -1,13 +1,11 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { SplashScreen, Tabs } from "expo-router";
 import { useEffect } from "react";
-import { useFont } from "../../../core";
+import { useFont } from "../../../core/hooks";
+import { SplashScreen, Tabs } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import DefaultTheme from "../../../core/theme/defaultTheme";
 
 export default function TabsLayout() {
   const { loaded, error } = useFont();
-
-  const image = require("../../../assets/mimico_background.png");
 
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
@@ -19,7 +17,7 @@ export default function TabsLayout() {
     <DefaultTheme>
       <Tabs
         screenOptions={{
-          // headerShown: false,
+          headerShown: false,
           tabBarActiveTintColor: "blue",
         }}
       >

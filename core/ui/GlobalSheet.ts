@@ -10,6 +10,7 @@ export const GlobalSheet = StyleSheet.create({
     flex: 1,
     gap: 10,
     width: "100%",
+    marginVertical: 15,
     alignItems: "center",
     paddingHorizontal: 15,
     justifyContent: "center",
@@ -26,7 +27,7 @@ export const GlobalSheet = StyleSheet.create({
   },
   shadowText: {
     textShadowRadius: 1,
+    textShadowColor: "#000000",
     textShadowOffset: { width: 2, height: 2 },
-    // textShadowColor: GlobalTheme.light.color.tertiary,
   },
 });

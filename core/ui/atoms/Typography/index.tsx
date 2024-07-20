@@ -2,8 +2,8 @@ import { FC } from "react";
 import { View } from "react-native";
 import { EnumTextSize } from "./enums";
 import { TypographyLabel } from "./styled";
-import { ITypography, TSize } from "./interface";
 import { GlobalSheet } from "../../GlobalSheet";
+import { ITypography, TSize } from "./interface";
 
 export const Typography: FC<ITypography> = ({
   text,
