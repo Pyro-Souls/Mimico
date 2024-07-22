@@ -10,6 +10,7 @@ import { logout } from '../../../services/Auth.service';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
 const ProfileScreen = () => {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -19,9 +20,6 @@ const ProfileScreen = () => {
   const [fontsLoaded] = useFonts({
     CarterOne_400Regular,
   });
-
-  const router = useRouter();
-
   useEffect(() => {
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
