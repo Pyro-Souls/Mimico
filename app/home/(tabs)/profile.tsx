@@ -1,21 +1,55 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, Alert, Modal, TextInput, Button, Dimensions } from 'react-native';
 import { useFonts, CarterOne_400Regular } from '@expo-google-fonts/carter-one';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { firestore, storage, auth } from '../../../services/firebase'; // Asegúrate de que la ruta sea correcta
 import { logout } from '../../../services/Auth.service';
+import { onAuthStateChanged, User } from 'firebase/auth';
+
 const ProfileScreen = () => {
-  const [userImage, setUserImage] = useState<string | null>(null);
-  const [username, setUsername] = useState<string>('Filemona');
-  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [newUsername, setNewUsername] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [fontsLoaded] = useFonts({
     CarterOne_400Regular,
   });
 
+  const router = useRouter();
+
+  useEffect(() => {
+    if (auth) {
+      const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
+        if (user) {
+          setUserId(user.uid);
+          fetchProfileData(user.uid);
+        } else {
+          console.log('No user is signed in.');
+        }
+      });
+
+      return () => unsubscribe();
+    } else {
+      console.error('Firebase auth is not initialized');
+    }
+  }, []);
+
+  const fetchProfileData = async (userId: string) => {
+    const userDocRef = doc(firestore, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      setUsername(userDoc.data().username || '');
+      setProfileImage(userDoc.data().profileImageUrl || '');
+    }
+  };
+
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
     if (permissionResult.granted === false) {
       Alert.alert("Permission to access camera roll is required!");
       return;
@@ -29,22 +63,54 @@ const ProfileScreen = () => {
     });
 
     if (!result.canceled) {
-      setUserImage(result.assets[0].uri);
+      const { uri } = result.assets[0];
+      try {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        const storageRef = ref(storage, `images/${new Date().getTime()}`);
+        await uploadBytes(storageRef, blob);
+
+        const downloadURL = await getDownloadURL(storageRef);
+        setProfileImage(downloadURL);
+
+        if (userId) {
+          const userDocRef = doc(firestore, 'users', userId);
+          await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
+        }
+      } catch (error) {
+        console.error("Error uploading image to Firebase Storage:", error);
+        Alert.alert("Error", "There was an error uploading the image. Please try again.");
+      }
     }
   };
 
   const handleChangeUsername = () => {
-    Alert.alert('Función para cambiar nombre de usuario');
+    setShowModal(true);
+  };
+
+  const handleUpdateUsername = async () => {
+    if (newUsername.trim().length > 0 && userId) {
+      try {
+        const userDocRef = doc(firestore, 'users', userId);
+        await setDoc(userDocRef, { username: newUsername }, { merge: true });
+        setUsername(newUsername);
+        setNewUsername('');
+        setShowModal(false);
+      } catch (error) {
+        console.error("Error updating username in Firestore:", error);
+        Alert.alert("Error", "There was an error updating the username. Please try again.");
+      }
+    } else {
+      Alert.alert("Invalid Input", "Username cannot be empty.");
+    }
   };
 
   const handleLogout = async () => {
     try {
       await logout();
       Alert.alert("Logout exitoso", "Has cerrado sesión exitosamente");
-      logout();
-        
-        //This clears navigation history and goes back to the first screen 
-        if (router.canDismiss()) router.dismissAll();
+      if (router.canDismiss()) router.dismissAll();
     } catch (error) {
       Alert.alert("Error de Logout", "Hubo un problema al cerrar sesión. Inténtalo de nuevo.");
     }
@@ -73,7 +139,7 @@ const ProfileScreen = () => {
         <View style={styles.content}>          
           <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
             <Image 
-              source={userImage ? { uri: userImage } : require('../../../assets/Ellipse 22.png')} 
+              source={profileImage ? { uri: profileImage } : require('../../../assets/Ellipse 22.png')} 
               style={styles.userImage} 
             />
           </TouchableOpacity>
@@ -86,7 +152,6 @@ const ProfileScreen = () => {
           </View>
           
           <View style={styles.buttonsContainer}>
-           
             <TouchableOpacity style={styles.customButton3} onPress={handleLogout}>
               <Image source={require('../../../assets/Iconlogout.png')} style={styles.buttonIcon} />
               <Text style={styles.buttonText3}>Logout</Text>
@@ -100,9 +165,35 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal for changing username */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={showModal}
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Change Username</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter new username"
+              value={newUsername}
+              onChangeText={setNewUsername}
+            />
+            <View style={styles.modalButtons}>
+              <Button title="Update" onPress={handleUpdateUsername} />
+              <Button title="Cancel" onPress={() => setShowModal(false)} color="red" />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -222,8 +313,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: 'absolute', // Asegura que el icono esté fijo en la parte inferior derecha
-    bottom: 150, // Ajuste del margen inferior
-    right: 20, // Ajuste del margen derecho
+    bottom: 10, // Ajuste del margen inferior
+    right: 160, // Ajuste del margen derecho
     justifyContent: 'flex-end', // Alinea el contenido al final
     alignItems: 'center', // Alinea el contenido al centro horizontalmente
   },
@@ -251,9 +342,9 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginTop: 50, // Ajuste del margen superior
-    width: 150, // Ajuste del ancho
-    height: 150, // Ajuste del alto
-    borderRadius: 75, // Ajuste del radio de la esquina
+    width: 250, // Ajuste del ancho
+    height: 250, // Ajuste del alto
+    borderRadius: 150, // Ajuste del radio de la esquina
     overflow: 'hidden', // Ajuste para la imagen
   },
   userImage: {
@@ -288,6 +379,39 @@ const styles = StyleSheet.create({
     position: 'absolute', // Posiciona el icono de manera absoluta dentro del botón
     left: 20, // Ajuste del margen izquierdo
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 15,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
 });
+
 
 export default ProfileScreen;
