@@ -5,25 +5,21 @@ This component displays detailed information about the selected character and al
 
 Importing and Using Libraries:
 
-jsx
-Copiar código
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Dimensions, Pressable, ImageBackground, ScrollView } from 'react-native';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import { useStore } from '../../../providers/store';
-Here you import the necessary libraries and components. useStore is used to access data from the global state.
+
 
 Getting Screen Dimensions:
 
-jsx
-Copiar código
 const { width, height } = Dimensions.get('window');
 This allows you to get the device screen size to adapt the component’s style to different screen sizes.
 
 Defining Interfaces:
 
-jsx
-Copiar código
+
 interface Item {
   id: string;
   title: string;
@@ -48,8 +44,7 @@ Interfaces define the structure of the data your component will work with. Item 
 
 Function convertCharacterToItem:
 
-jsx
-Copiar código
+
 const convertCharacterToItem = (character: Character): Item => ({
   id: character.id,
   title: character.title,
@@ -61,8 +56,7 @@ This function converts a Character object to an Item object so it can be used in
 
 CharacterSheet Component:
 
-jsx
-Copiar código
+
 export default function CharacterSheet() {
   const { currentCharacter, data, setData } = useStore();
   const initialData = currentCharacter ? [convertCharacterToItem(currentCharacter)] : [];
@@ -87,8 +81,7 @@ useEffect Hook: Updates localData if a new character is selected.
 
 Action Handlers:
 
-jsx
-Copiar código
+
 const handleEdit = (id: string, title: string, value: string, stats?: { strength: number; agility: number }) => {
   setEditingId(id);
   setEditingTitle(title);
@@ -162,8 +155,6 @@ handleRemove: Removes an item from the data.
 handleAdd: Adds a new item to the data.
 renderItem Function:
 
-jsx
-Copiar código
 const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => (
   <Pressable
     style={({ pressed }) => [
@@ -241,8 +232,7 @@ This function determines how each list item will look. If the item is being edit
 
 Rendering the Component:
 
-jsx
-Copiar código
+
 return (
   <ImageBackground
     source={{ uri: '../../../assets/mimico_background.png' }} // Replace with the correct path
@@ -267,8 +257,7 @@ ScrollView: Allows scrolling of content.
 DraggableFlatList: Allows dragging list items to change their order.
 Styles:
 
-jsx
-Copiar código
+
 const styles = StyleSheet.create({
   backgroundImage: { ... },
   scrollView: { ... },
@@ -294,8 +283,7 @@ This component displays a list of character cards and allows selecting character
 
 Importing and Using Libraries:
 
-jsx
-Copiar código
+
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Dimensions, Pressable } from 'react-native';
 import { useStore } from '../../../providers/store';
@@ -304,8 +292,7 @@ You import the necessary libraries and functions.
 
 CharacterCard Component:
 
-jsx
-Copiar código
+
 const CharacterCard = ({ title, subtitle, stats, onPress }) => (
   <Pressable style={styles.card} onPress={onPress}>
     <Text style={styles.title}>{title}</Text>
@@ -318,8 +305,6 @@ This component displays a character card. When pressed, it calls the onPress fun
 
 AddNewCard Component:
 
-jsx
-Copiar código
 const AddNewCard = () => (
   <View style={styles.addCard}>
     <Text style={styles.plus}>+</Text>
@@ -329,8 +314,7 @@ This component displays a button for adding a new character.
 
 Tab Component:
 
-jsx
-Copiar código
+
 export default function Tab() {
   const { data, setCurrentCharacter } = useStore();
   const router = useRouter();
@@ -368,8 +352,7 @@ renderItem: Determines how each item is displayed. If the item’s id is 'add', 
 onPress: Sets the current character and navigates to the editing screen.
 Styles:
 
-jsx
-Copiar código
+
 const styles = StyleSheet.create({
   container: { ... },
   list: { ... },
@@ -388,8 +371,6 @@ This is the global state used to store character data and the currently selected
 
 Importing and Defining Interfaces:
 
-jsx
-Copiar código
 import { create } from 'zustand';
 
 interface Character {
@@ -412,8 +393,7 @@ Interfaces define the state structure and functions for updating it.
 
 Creating the Store:
 
-jsx
-Copiar código
+
 export const useStore = create<AppState>((set) => ({
   data: [
     { id: '1', title: 'Mascarpone Toblerone', subtitle: 'Holy Knight', stats: { strength: 10, agility: 8 } },
