@@ -8,7 +8,16 @@ export type TIcons =
   | "edit"
   | "google"
   | "home"
+  | "arrow-down"
+  | "back"
+  | "discord"
+  | "facebook"
+  | "image"
+  | "instagram"
   | "save"
+  | "trash"
+  | "twitch"
+  | "upload"
   | "user";
 
 type TButtonColorType = "primary" | "secondary";

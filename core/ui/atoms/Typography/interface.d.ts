@@ -3,6 +3,7 @@ import { TThemeColor } from "../theme";
 interface ITypographyLabel {
   size: TSize;
   isText: Boolean;
+  align?: TAligns;
   color?: TThemeColor;
   fontWeight: IBoldTypes;
 }
@@ -10,11 +11,14 @@ interface ITypographyLabel {
 export interface ITypography {
   text: string;
   size?: TSize;
+  align?: TAligns;
   color?: TThemeColor;
   fontWeight?: IBoldTypes;
 }
 
 export type IBoldTypes = "normal" | "bolder" | "bold";
+
+export type TAligns = "right" | "left" | "center" | "justify" | "end" | "start";
 
 export type TSize =
   | "h1"
