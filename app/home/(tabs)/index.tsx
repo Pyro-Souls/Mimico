@@ -3,7 +3,7 @@ import { GlobalSheet } from "../../../core/ui";
 import useStore from "../../../providers/store";
 import { View, ScrollView } from "react-native";
 import { ThemeContext } from "../../../core/theme";
-import { Container } from "../../../core/ui/organisms";
+import { ContainerUI } from "../../../core/ui/organisms";
 import {
   Button,
   Checkbox,
@@ -17,7 +17,7 @@ export default function Tab() {
   const { changeTheme } = useContext(ThemeContext);
 
   return (
-    <Container>
+    <ContainerUI>
       <ScrollView>
         <View style={GlobalSheet.ViewContent}>
           {/* TYPOGRAPHY */}
@@ -72,6 +72,6 @@ export default function Tab() {
           />
         </View>
       </ScrollView>
-    </Container>
+    </ContainerUI>
   );
 }

@@ -11,7 +11,11 @@ import {
     addDoc, 
     query, 
     where, 
-    onSnapshot 
+    onSnapshot, 
+    storage,
+    ref,
+    uploadBytes,
+    getDownloadURL,
 } from "./firebase";
 
 const collectionName = 'users';
@@ -24,7 +28,7 @@ export const createUser = async(obj:userData) => {
 }
 
 // UPDATE
-export const updateUser = async (id, obj) => {
+export const updateUser = async (id:string, obj:userData) => {
     const docRef = doc(db, collectionName, id);
     await updateDoc(docRef, obj)
 }
@@ -51,7 +55,7 @@ export const getUserById = async (id:string) => {
 }
 
 // DELETE
-export const deleteUser = async (id) => {
+export const deleteUser = async (id:string) => {
     const docRef = doc(db, collectionName, id);
     await deleteDoc(docRef);
 }
@@ -61,3 +65,13 @@ const getArrayFromCollection = (collection) => {
         return { ...doc.data(), id: doc.id };
     });
 }
+
+// UPLOAD IMAGE Pol's Version, Jean tiene otra versión maybe mejor idk
+export const uploadProfileImage = async (file, uid:string) => {
+    const storageRef = ref(storage, `/files/${uid}/${file.name}`);
+    const data = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(data.ref);
+    const colRef = collection(db, collectionName);
+    await setDoc(doc(colRef, uid), { profileImage: url });
+    return url;
+};

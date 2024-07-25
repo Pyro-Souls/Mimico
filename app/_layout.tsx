@@ -23,6 +23,13 @@ const RootLayout = () => {
           }}
         />
         <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+            headerTitle: "Login",
+          }}
+        />
+        <Stack.Screen
           name="register"
           options={{
             headerShown: false,
