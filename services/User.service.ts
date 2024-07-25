@@ -18,6 +18,7 @@ import {
     getDownloadURL,
 } from "./firebase";
 import { type QuerySnapshot } from "firebase/firestore";
+
 const collectionName = 'users';
 
 // CREATE
@@ -75,3 +76,19 @@ export const uploadProfileImage = async (file, uid:string) => {
     await setDoc(doc(colRef, uid), { profileImage: url });
     return url;
 };
+
+// UPLOAD PROFILE IMAGE
+// export const uploadProfileImage = async (userId: string, uri: string) => {
+//     const response = await fetch(uri);
+//     const blob = await response.blob();
+
+//     const storageRef = ref(storage, `images/${new Date().getTime()}`);
+//     await uploadBytes(storageRef, blob);
+
+//     const downloadURL = await getDownloadURL(storageRef);
+
+//     const userDocRef = doc(db, collectionName, userId);
+//     await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
+
+//     return downloadURL;
+// }
