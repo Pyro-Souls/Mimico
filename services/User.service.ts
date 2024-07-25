@@ -17,7 +17,7 @@ import {
     uploadBytes,
     getDownloadURL,
 } from "./firebase";
-
+import { type QuerySnapshot } from "firebase/firestore";
 const collectionName = 'users';
 
 // CREATE
@@ -42,7 +42,7 @@ export const getUsers= async ()  => {
 
 // READ WITH WHERE
 // Tener en cuenta que el tipo de dato de la condición debe coincidir con el tipo de dato que hay en Firebase o no obtendré un dato de respuesta
-export const getUsersByCondition = async (value) => {
+export const getUsersByCondition = async (value:string) => {
     const colRef = collection(db, collectionName);
     const result = await getDocs(query(colRef, where('age', '==', value)));
     return getArrayFromCollection(result);
@@ -60,7 +60,7 @@ export const deleteUser = async (id:string) => {
     await deleteDoc(docRef);
 }
 
-const getArrayFromCollection = (collection) => {
+const getArrayFromCollection = (collection:QuerySnapshot) => {
     return collection.docs.map(doc => {
         return { ...doc.data(), id: doc.id };
     });
