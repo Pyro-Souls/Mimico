@@ -1,14 +1,15 @@
 import { useState,useContext} from 'react';
 import { Button, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import PropTypes from 'prop-types';
 
 // El método de uploadImage que utilizaremos, lo tenemos definido en la lección de firebase.    
 import {uploadImage, uploadProfileImage} from './User.service';
 
-const ImagePickerExample = ({ type, uid }) => {
+const ImagePickerExample = ({ type, uid }: { type: string, uid: string }) => {
     const [image, setImage] = useState(null);
 
-    const uploadImageAsync = async(uri) => {
+    const uploadImageAsync = async(uri: string) => {
         const blob = await new Promise((resolve, reject) => {
  
             const xhr = new XMLHttpRequest();
@@ -43,12 +44,15 @@ const ImagePickerExample = ({ type, uid }) => {
             }
         };
     };
-    return <>
-        <Button title="Pick an image from camera roll" onPress={()=>pickImage()} />
 
-    {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+    const buttonTitle = type === 'profile' ? 'Upload Profile Picture' : 'Pick an image from camera roll';
 
-    </>
+    return (
+        <>
+        <Button title={buttonTitle} onPress={pickImage} />
+        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+        </>
+    );
 }; 
 
 ImagePickerExample.propTypes = {

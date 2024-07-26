@@ -2,8 +2,11 @@ import {View, Text, StyleSheet, Button} from 'react-native';
 import {useNavigation, router} from 'expo-router';
 import {useEffect} from 'react';
 import { logout } from '../../../services/Auth.service';
+import ImagePickerExample from '../../../services/ImagePicker';
+import useStore from "../../../providers/store";
 
 export default function Tab() {
+    const {user} = useStore();
     const handleLogOut = async () => {
         logout();
         
@@ -13,6 +16,7 @@ export default function Tab() {
     return (
         <View style={styles.container}>
             <Text>Tab [Settings]</Text>
+            <ImagePickerExample type="generic" uid={user.uid ?? ''}/>
             <Button title="Logout" onPress={handleLogOut}/>
         </View>
     );
