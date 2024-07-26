@@ -13,10 +13,6 @@ import { Platform } from "react-native";
 
 export { collection, doc, getDoc, setDoc, getDocs, query, updateDoc, deleteDoc, addDoc, where, onSnapshot } from "firebase/firestore";
 export { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, fetchSignInMethodsForEmail, sendEmailVerification } from "firebase/auth";
-<<<<<<< Updated upstream
-=======
-export {getDownloadURL, ref, uploadBytes, getStorage } from "firebase/storage";
->>>>>>> Stashed changes
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_API_KEY,

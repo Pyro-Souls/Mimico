@@ -11,16 +11,7 @@ import {
     addDoc, 
     query, 
     where, 
-<<<<<<< Updated upstream
     onSnapshot 
-=======
-    onSnapshot, 
-    storage,
-    ref,
-    uploadBytes,
-    getDownloadURL,
-    getStorage,
->>>>>>> Stashed changes
 } from "./firebase";
 
 const collectionName = 'users';
@@ -70,40 +61,3 @@ const getArrayFromCollection = (collection) => {
         return { ...doc.data(), id: doc.id };
     });
 }
-<<<<<<< Updated upstream
-=======
-
-// UPLOAD IMAGE generic
-export const uploadImage = async (file, filePath) => {
-  const storage = getStorage();
-  const storageRef = ref(storage, filePath);
-  const data = await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(data.ref);
-  return url;
-};
-
-// UPLOAD PROFILE IMAGE
-export const uploadProfileImage = async (file, uid:string) => {
-  const filePath = `/files/${uid}/${file.name}`;
-  const url = await uploadImage(file, filePath);
-  const colRef = collection(db, collectionName);
-  await setDoc(doc(colRef, uid), { profileImage: url });
-  return url;
-};
-
-// UPLOAD PROFILE IMAGE Jean's Version
-// export const uploadProfileImage = async (userId: string, uri: string) => {
-//     const response = await fetch(uri);
-//     const blob = await response.blob();
-
-//     const storageRef = ref(storage, `images/${new Date().getTime()}`);
-//     await uploadBytes(storageRef, blob);
-
-//     const downloadURL = await getDownloadURL(storageRef);
-
-//     const userDocRef = doc(db, collectionName, userId);
-//     await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
-
-//     return downloadURL;
-// }
->>>>>>> Stashed changes
