@@ -16,6 +16,7 @@ import {
     ref,
     uploadBytes,
     getDownloadURL,
+    getStorage,
 } from "./firebase";
 import { type QuerySnapshot } from "firebase/firestore";
 
@@ -67,17 +68,25 @@ const getArrayFromCollection = (collection:QuerySnapshot) => {
     });
 }
 
-// UPLOAD IMAGE Pol's Version, Jean tiene otra versión maybe mejor idk
-export const uploadProfileImage = async (file, uid:string) => {
-    const storageRef = ref(storage, `/files/${uid}/${file.name}`);
-    const data = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(data.ref);
-    const colRef = collection(db, collectionName);
-    await setDoc(doc(colRef, uid), { profileImage: url });
-    return url;
+// UPLOAD IMAGE generic
+export const uploadImage = async (file, filePath) => {
+  const storage = getStorage();
+  const storageRef = ref(storage, filePath);
+  const data = await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(data.ref);
+  return url;
 };
 
 // UPLOAD PROFILE IMAGE
+export const uploadProfileImage = async (file, uid:string) => {
+  const filePath = `/files/${uid}/${file.name}`;
+  const url = await uploadImage(file, filePath);
+  const colRef = collection(db, collectionName);
+  await setDoc(doc(colRef, uid), { profileImage: url });
+  return url;
+};
+
+// UPLOAD PROFILE IMAGE Jean's Version
 // export const uploadProfileImage = async (userId: string, uri: string) => {
 //     const response = await fetch(uri);
 //     const blob = await response.blob();
@@ -92,3 +101,4 @@ export const uploadProfileImage = async (file, uid:string) => {
 
 //     return downloadURL;
 // }
+
