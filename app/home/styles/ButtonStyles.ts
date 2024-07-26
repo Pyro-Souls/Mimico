@@ -98,11 +98,10 @@ const ButtonStyles = StyleSheet.create({
     flexDirection: 'row-reverse', // Mantener el flexDirection para mantener el orden de los elementos
     alignItems: 'center',
   },
-   
-  backButton: {
+    backButton: {
     position: 'absolute',
-    top: 40, // Ajuste del margen superior
-    left: 20,
+    top: 50, // Ajuste del margen superior
+    left: 500,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
