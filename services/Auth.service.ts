@@ -10,9 +10,9 @@ import {
     sendPasswordResetEmail, 
     fetchSignInMethodsForEmail, 
     sendEmailVerification, 
-    firebaseApp
+    firebaseApp 
 } from "./firebase";
-
+import { Alert } from 'react-native';
 import { createUser, getUserById } from "./User.service";
 import { userData } from "../common/types/User";
 import { signInWithCredential } from "firebase/auth";

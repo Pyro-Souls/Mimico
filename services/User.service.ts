@@ -1,4 +1,5 @@
 import { userData } from "../common/types/User";
+import {firestore } from "./firebase"
 import {
     db, 
     doc, 
@@ -61,3 +62,17 @@ const getArrayFromCollection = (collection) => {
         return { ...doc.data(), id: doc.id };
     });
 }
+//esto es otro tipo de cambio de username borrar luego si no hace falta//
+export const fetchProfileData = async (userId: string) => {
+    const userDocRef = doc(firestore, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      return userDoc.data();
+    }
+    throw new Error('User data not found');
+  };
+  
+  export const updateUsername = async (userId: string, newUsername: string) => {
+    const userDocRef = doc(firestore, 'users', userId);
+    await setDoc(userDocRef, { username: newUsername }, { merge: true });
+  };
