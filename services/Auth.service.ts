@@ -59,8 +59,9 @@ export const logIn = async (email: string, password: string) => {
             password
         );
         //Maybe check getUserbyid
-        console.log("User logged in", auth.currentUser?.uid);
-        return true;
+        console.log("User logged in (logIn function)", auth.currentUser?.uid);
+        const user = await getUserById(auth.currentUser?.uid ?? '') as userData;
+        return user;
     } catch (error) {
         console.log(error)
         return false;
