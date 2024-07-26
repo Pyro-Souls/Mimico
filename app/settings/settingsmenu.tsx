@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Modal, Text, TouchableOpacity, StyleSheet, Button, Alert } from 'react-native';
-
+import { router } from 'expo-router';
 // Define la interfaz para las propiedades del componente
 interface SettingsMenuProps {
   visible: boolean;
@@ -10,7 +10,7 @@ interface SettingsMenuProps {
 // Usa la interfaz en el componente
 const SettingsMenu: React.FC<SettingsMenuProps> = ({ visible, onClose }) => {
   return (
-    <Modal
+     <Modal
       transparent={true}
       animationType="slide"
       visible={visible}
@@ -31,7 +31,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ visible, onClose }) => {
           <TouchableOpacity style={styles.option} onPress={() => Alert.alert('Notification Settings')}>
             <Text style={styles.optionText}>Notification Settings</Text>
           </TouchableOpacity>
-          <Button title="Close" onPress={onClose} />
+          <Button title="Close" onPress={() => router.push('/home')} />
         </View>
       </View>
     </Modal>

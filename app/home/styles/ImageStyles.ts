@@ -28,6 +28,14 @@ const ImageStyles = StyleSheet.create({
     width: 50,
     height: 50,
   },
+  backButton: {
+    position: 'absolute',
+    top: 40, // Ajuste del margen superior
+    left: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  
 });
 
 export default ImageStyles;

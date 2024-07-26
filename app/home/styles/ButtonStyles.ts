@@ -89,23 +89,17 @@ const ButtonStyles = StyleSheet.create({
     height: 28,
     position: 'absolute',
     left: 20,
+  
+  
   },
-  topRightButtons: {
-    position: 'absolute',
-    top: 40, // Ajuste del margen superior
-    right: 20,
-    justifyContent: 'flex-end', // Alinear los elementos al final (a la derecha)
-    flexDirection: 'row-reverse', // Mantener el flexDirection para mantener el orden de los elementos
-    alignItems: 'center',
-  },
-    backButton: {
-    position: 'absolute',
-    top: 50, // Ajuste del margen superior
-    left: 500,
+  settingsButton: {
     paddingHorizontal: 10,
     paddingVertical: 5,
+    marginRight: 10, // Espacio entre el botón de ajustes y el borde derecho del contenedor
   },
-  
+  changeUsernameButton: {
+    marginLeft: 10, // Ajuste del margen izquierdo
+  },
 
 
 });

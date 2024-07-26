@@ -26,6 +26,20 @@ const ContainerStyles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 40,
   },
+  usernameContainer: {
+    flexDirection: 'row', // Mantener el flexDirection para mantener el orden de los elementos
+    marginTop: 20, // Ajuste del margen superior
+    alignItems: 'center', // Alinea el contenido al centro
+  },
+  topRightButtons: {
+    position: 'absolute',
+    top: 40, // Ajuste del margen superior
+    right: 20,
+    justifyContent: 'flex-end', // Alinear los elementos al final (a la derecha)
+    flexDirection: 'row-reverse', // Mantener el flexDirection para mantener el orden de los elementos
+    alignItems: 'center',
+  },
+
   
 });
 
