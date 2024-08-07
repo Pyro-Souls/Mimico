@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Modal, Text, TouchableOpacity, StyleSheet, Button, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { View, Modal, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { useRouter } from 'expo-router'; // Cambiado a useRouter para navegar
+
 // Define la interfaz para las propiedades del componente
 interface SettingsMenuProps {
   visible: boolean;
@@ -9,8 +10,10 @@ interface SettingsMenuProps {
 
 // Usa la interfaz en el componente
 const SettingsMenu: React.FC<SettingsMenuProps> = ({ visible, onClose }) => {
+  const router = useRouter(); // Usa el hook useRouter para la navegación
+
   return (
-     <Modal
+    <Modal
       transparent={true}
       animationType="slide"
       visible={visible}
@@ -19,16 +22,16 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ visible, onClose }) => {
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Settings Menu</Text>
-          <TouchableOpacity style={styles.option} onPress={() => Alert.alert('General Settings')}>
-            <Text style={styles.optionText}>General Settings</Text>
+          <TouchableOpacity style={styles.option} onPress={() => router.push('/micuenta')}>
+            <Text style={styles.optionText}>Mi cuenta</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => Alert.alert('Account Settings')}>
+          <TouchableOpacity style={styles.option} onPress={() => router.push('/personalizacion')}>
             <Text style={styles.optionText}>Account Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => Alert.alert('Privacy Settings')}>
+          <TouchableOpacity style={styles.option} onPress={() => router.push('/conexiones')}>
             <Text style={styles.optionText}>Privacy Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.option} onPress={() => Alert.alert('Notification Settings')}>
+          <TouchableOpacity style={styles.option} onPress={() => router.push('/notificaciones')}>
             <Text style={styles.optionText}>Notification Settings</Text>
           </TouchableOpacity>
           <Button title="Close" onPress={() => router.push('/home')} />
