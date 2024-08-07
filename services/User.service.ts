@@ -1,4 +1,5 @@
 import { userData } from "../common/types/User";
+import {firestore } from "./firebase"
 import {
     db, 
     doc, 

@@ -41,5 +41,8 @@ if (isWeb) {
       console.error("Failed to set persistence:", error);
     });
 }
+const app = initializeApp(firebaseConfig);
+
+export const firestore = getFirestore(app);
 
 

@@ -3,6 +3,7 @@ import { useFont } from "../core/hooks";
 import { SplashScreen, Stack } from "expo-router";
 import DefaultTheme from "../core/theme/defaultTheme";
 
+
 const RootLayout = () => {
   const { loaded, error } = useFont();
 
