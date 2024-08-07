@@ -5,5 +5,4 @@ export type userData = {
     name: string | null;
     lastName: string | null;
     date: Date | null;
-    profileImage: string | null;
 };

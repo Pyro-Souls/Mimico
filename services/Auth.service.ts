@@ -10,9 +10,9 @@ import {
     sendPasswordResetEmail, 
     fetchSignInMethodsForEmail, 
     sendEmailVerification, 
-    firebaseApp 
+    firebaseApp
 } from "./firebase";
-import { Alert } from 'react-native';
+
 import { createUser, getUserById } from "./User.service";
 import { userData } from "../common/types/User";
 import { signInWithCredential } from "firebase/auth";
@@ -59,9 +59,8 @@ export const logIn = async (email: string, password: string) => {
             password
         );
         //Maybe check getUserbyid
-        console.log("User logged in (logIn function)", auth.currentUser?.uid);
-        const user = await getUserById(auth.currentUser?.uid ?? '') as userData;
-        return user;
+        console.log("User logged in", auth.currentUser?.uid);
+        return true;
     } catch (error) {
         console.log(error)
         return false;

@@ -1,1 +1,0 @@
-export { GlobalSheet } from "./GlobalSheet";

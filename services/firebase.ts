@@ -13,7 +13,6 @@ import { Platform } from "react-native";
 
 export { collection, doc, getDoc, setDoc, getDocs, query, updateDoc, deleteDoc, addDoc, where, onSnapshot } from "firebase/firestore";
 export { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, fetchSignInMethodsForEmail, sendEmailVerification } from "firebase/auth";
-export {getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_API_KEY,
@@ -41,8 +40,5 @@ if (isWeb) {
       console.error("Failed to set persistence:", error);
     });
 }
-const app = initializeApp(firebaseConfig);
-
-export const firestore = getFirestore(app);
 
 
