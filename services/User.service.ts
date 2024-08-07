@@ -1,4 +1,5 @@
 import { userData } from "../common/types/User";
+import {firestore } from "./firebase"
 import {
     db, 
     doc, 
@@ -11,8 +12,13 @@ import {
     addDoc, 
     query, 
     where, 
-    onSnapshot 
+    onSnapshot, 
+    storage,
+    ref,
+    uploadBytes,
+    getDownloadURL,
 } from "./firebase";
+import { type QuerySnapshot } from "firebase/firestore";
 
 const collectionName = 'users';
 
@@ -24,7 +30,7 @@ export const createUser = async(obj:userData) => {
 }
 
 // UPDATE
-export const updateUser = async (id, obj) => {
+export const updateUser = async (id:string, obj:userData) => {
     const docRef = doc(db, collectionName, id);
     await updateDoc(docRef, obj)
 }
@@ -38,7 +44,7 @@ export const getUsers= async ()  => {
 
 // READ WITH WHERE
 // Tener en cuenta que el tipo de dato de la condición debe coincidir con el tipo de dato que hay en Firebase o no obtendré un dato de respuesta
-export const getUsersByCondition = async (value) => {
+export const getUsersByCondition = async (value:string) => {
     const colRef = collection(db, collectionName);
     const result = await getDocs(query(colRef, where('age', '==', value)));
     return getArrayFromCollection(result);
@@ -51,13 +57,39 @@ export const getUserById = async (id:string) => {
 }
 
 // DELETE
-export const deleteUser = async (id) => {
+export const deleteUser = async (id:string) => {
     const docRef = doc(db, collectionName, id);
     await deleteDoc(docRef);
 }
 
-const getArrayFromCollection = (collection) => {
+const getArrayFromCollection = (collection:QuerySnapshot) => {
     return collection.docs.map(doc => {
         return { ...doc.data(), id: doc.id };
     });
 }
+
+// UPLOAD IMAGE Pol's Version, Jean tiene otra versión maybe mejor idk
+export const uploadProfileImage = async (file, uid:string) => {
+    const storageRef = ref(storage, `/files/${uid}/${file.name}`);
+    const data = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(data.ref);
+    const colRef = collection(db, collectionName);
+    await setDoc(doc(colRef, uid), { profileImage: url });
+    return url;
+};
+
+// UPLOAD PROFILE IMAGE
+// export const uploadProfileImage = async (userId: string, uri: string) => {
+//     const response = await fetch(uri);
+//     const blob = await response.blob();
+
+//     const storageRef = ref(storage, `images/${new Date().getTime()}`);
+//     await uploadBytes(storageRef, blob);
+
+//     const downloadURL = await getDownloadURL(storageRef);
+
+//     const userDocRef = doc(db, collectionName, userId);
+//     await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
+
+//     return downloadURL;
+// }
