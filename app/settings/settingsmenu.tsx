@@ -34,7 +34,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ visible, onClose }) => {
           <TouchableOpacity style={styles.option} onPress={() => router.push('/notificaciones')}>
             <Text style={styles.optionText}>Notification Settings</Text>
           </TouchableOpacity>
-          <Button title="Close" onPress={() => router.push('/home')} />
+          <Button title="Close" onPress={() => router.push('/home/(tabs)/profile')} />
         </View>
       </View>
     </Modal>
