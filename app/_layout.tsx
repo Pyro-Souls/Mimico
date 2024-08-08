@@ -1,17 +1,18 @@
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useFont } from "../core/hooks";
-import { SplashScreen, Stack } from "expo-router";
 import DefaultTheme from "../core/theme/defaultTheme";
 
+SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
-  const { loaded, error } = useFont();
+  const { loaded, error, themeKey } = useFont();
 
   useEffect(() => {
-    if (loaded || error) SplashScreen.hideAsync();
+    if (loaded || error || themeKey) SplashScreen.hideAsync();
   }, [loaded, error]);
 
-  if (!loaded && !error) return null;
+  if ((!loaded && !error) || !themeKey) return null;
 
   return (
     <DefaultTheme>
