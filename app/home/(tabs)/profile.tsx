@@ -14,6 +14,9 @@ import {
 import { useFonts, CarterOne_400Regular } from '@expo-google-fonts/carter-one';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+//Todo lo de abajo no puede estar aqui, ya esta en services/firebase,
+//Hay que importar las funciones que se necesiten de ahi (creando nuevas si es necesario)
+//Intuyo que lo usas en el image picker
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { firestore, storage, auth } from '../../../services/firebase';
@@ -44,6 +47,8 @@ const ProfileScreen = () => {
     return () => unsubscribe();
   }, []);
 
+  //Esta funcion pickIimage deberia ser un componente aparte, ya que se puede reutilizar en otros lugares
+  //Igualmente, la logica de subir la imagen a firebase deberia estar en un servicio (services/Image.service.ts por ejemplo o el mismo User.service.ts)
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
