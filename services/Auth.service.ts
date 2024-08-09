@@ -34,6 +34,9 @@ export const signUp = async (username: string , name:string, lastName: string, e
             lastName: lastName,
             username: username,
             date: new Date(),
+            profileImage: null,
+            mimicoins: 100, //TODO: Global Variable
+            notes: null,
         } as userData;
         console.log(user);
 
@@ -97,6 +100,7 @@ export const logInWithGoogle = async () => {
 
       const u = await getUserById(user.uid) as userData;
       if (!u) {
+        //TODO: Revise this when enabling google login
         const newUser: userData = {
           uid: user.uid,
           username: null,
@@ -104,6 +108,9 @@ export const logInWithGoogle = async () => {
           name: user.displayName,
           lastName: null,
           date: new Date(),
+          profileImage: null,
+          mimicoins: 100,
+          notes: null,
         };
         console.log(newUser);
 

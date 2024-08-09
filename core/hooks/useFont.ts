@@ -16,7 +16,7 @@ export const useFont = () => {
 
   useEffect(() => {
     (async () => {
-      const key = await AsyncStorage.getItem("theme");
+      const key = await AsyncStorage.getItem("theme") || "light";
       if (key) setThemeKey(key);
     })();
   }, []);

@@ -26,6 +26,10 @@ export default function Tab() {
             size="sm"
             text={`Current user logged in: ${user.email}${user.username}`}
           />
+          <Typography
+            size="sm"
+            text={`Current mimicoins: ${user.mimicoins}`}
+          />
 
           {/* BUTTONS */}
           <Button title="Button Test" onPress={() => changeTheme("light")} />

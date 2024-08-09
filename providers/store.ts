@@ -17,6 +17,8 @@ const useStore = create<State>((set) => ({
         lastName: null,
         date: null,
         profileImage: null,
+        mimicoins: null,
+        notes: null,
     },
     setUser: (user) => set({ user }),
     clearUser: () => set({
@@ -28,6 +30,8 @@ const useStore = create<State>((set) => ({
             lastName: null,
             date: null,
             profileImage: null,
+            mimicoins: null,
+            notes: null,
         }
     }),
 }));
