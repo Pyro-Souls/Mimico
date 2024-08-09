@@ -11,22 +11,26 @@ import {
   TextInput,
   Button as RNButton,
 } from 'react-native';
+//Esto no deberia estar aqui, pero de momento lo dejamos
 import { useFonts, CarterOne_400Regular } from '@expo-google-fonts/carter-one';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
+import { router /*useRouter*/ } from 'expo-router'; //Borra el comentario cuando lo veas*
+
 //Todo lo de abajo no puede estar aqui, ya esta en services/firebase,
 //Hay que importar las funciones que se necesiten de ahi (creando nuevas si es necesario)
-//Intuyo que lo usas en el image picker
+//Intuyo que lo usas en el image picker**
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { firestore, storage, auth } from '../../../services/firebase';
 import { logout } from '../../../services/Auth.service';
 import { onAuthStateChanged, User } from 'firebase/auth';
+//El profile data lo tienes en el store (const { user } = useStore();), update username lo creas en User.service.ts o simplemente usas updateUser pasandole el id y el objeto user con el nuevo username (y lo mismo para qualquier otro cambio en el perfil)
 import { fetchProfileData, updateUsername } from '../../../services/User.service';
 import { ContainerStyles, ButtonStyles, TextStyles, ImageStyles, ModalStyles } from '../styles';
+import useStore from '../../../providers/store'; //Usalo maldita sea :v jjjjsjsjs
 
 const ProfileScreen = () => {
-  const router = useRouter();
+  //const router = useRouter(); //*Puedes importar directamente router de 'expo-router' en lugar de usar useRouter
   const [username, setUsername] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -47,8 +51,8 @@ const ProfileScreen = () => {
     return () => unsubscribe();
   }, []);
 
-  //Esta funcion pickIimage deberia ser un componente aparte, ya que se puede reutilizar en otros lugares
-  //Igualmente, la logica de subir la imagen a firebase deberia estar en un servicio (services/Image.service.ts por ejemplo o el mismo User.service.ts)
+  //**Esta funcion pickIimage deberia ser un componente aparte, ya que se puede reutilizar en otros lugares
+  //I también, la logica de settear la imagen de perfil deberia estar en el mismo User.service.ts)***
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -71,6 +75,8 @@ const ProfileScreen = () => {
         await uploadBytes(storageRef, blob);
         const downloadURL = await getDownloadURL(storageRef);
         setProfileImage(downloadURL);
+        //***Esta parte deberia ser una función en User.service.ts que actualice la imagen de perfil
+        //Un updateProfileImage o algo asi
         if (userId) {
           const userDocRef = doc(firestore, 'users', userId);
           await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
