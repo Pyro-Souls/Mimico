@@ -4,8 +4,10 @@ import {
     auth, 
     getAuth,
     signInWithEmailAndPassword, 
+    signInWithCredential,
     createUserWithEmailAndPassword, 
-    signOut, GoogleAuthProvider, 
+    signOut, 
+    GoogleAuthProvider, 
     signInWithPopup, 
     sendPasswordResetEmail, 
     fetchSignInMethodsForEmail, 
@@ -15,7 +17,6 @@ import {
 import { Alert } from 'react-native';
 import { createUser, getUserById } from "./User.service";
 import { userData } from "../common/types/User";
-import { firebaseApp } from "./firebase";
 
 // Sign up function
 export const signUp = async (username: string, name: string, lastName: string, email: string, password: string) => {

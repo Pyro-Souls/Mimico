@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, FlatList, Pressable, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import useStore from '../../../providers/store';
 import { addCharacter } from '../../../services/User.service';
 import { Characters } from '../../../common/types/Characters';
@@ -34,7 +34,6 @@ const AddNewCard: React.FC<AddNewCardProps> = ({ onPress }) => (
 
 const Tab: React.FC = () => {
   const { data, setCurrentCharacter, loadUserCharacters, user } = useStore();
-  const router = useRouter();
 
   useEffect(() => {
     if (user.uid) {
@@ -55,7 +54,7 @@ const Tab: React.FC = () => {
         await addCharacter(user.uid, newCharacter);
         loadUserCharacters();
         setCurrentCharacter(newCharacter);
-        router.push('/ficha');
+        router.push('home/(tabs)/ficha');
       } catch (error) {
         console.error('Error adding new character:', error);
         alert('Failed to add new character');
@@ -81,7 +80,7 @@ const Tab: React.FC = () => {
                     characters={character}
                     onPress={() => {
                       setCurrentCharacter(character);
-                      router.push('/ficha');
+                      router.push('home/(tabs)/ficha');
                     }}
                   />
                 );

@@ -24,31 +24,34 @@ import { type QuerySnapshot } from "firebase/firestore";
 
 const collectionName = 'users';
 
-// Функции для работы с пользователями
-export const createUser = async (obj: userData) => {
-    const docRef = doc(db, collectionName, obj.uid as string);
-    await setDoc(docRef, obj);
+// CREATE
+export const createUser = async(obj:userData) => {
+    const docRef = await doc(db, collectionName, obj.uid as string);
+    const res = await setDoc(docRef, obj);
     return docRef.id;
 }
 
+//UDATE
 export const updateUser = async (id: string, obj: Partial<userData>) => {
     const docRef = doc(db, collectionName, id);
     await updateDoc(docRef, obj);
 }
 
-export const getUsers = async (): Promise<userData[]> => {
+//READ
+export const getUsers = async () => {
     const colRef = collection(db, collectionName);
     const result = await getDocs(query(colRef));
     return getArrayFromCollection(result);
 }
 
-export const getUsersByCondition = async (value: any): Promise<userData[]> => {
+// READ WITH WHERE
+export const getUsersByCondition = async (value:string) => {
     const colRef = collection(db, collectionName);
     const result = await getDocs(query(colRef, where('age', '==', value)));
     return getArrayFromCollection(result);
 }
 
-export const getUserById = async (id: string): Promise<userData> => {
+export const getUserById = async (id: string) => {
     const docRef = doc(db, collectionName, id);
     const result = await getDoc(docRef);
     return result.data() as userData;

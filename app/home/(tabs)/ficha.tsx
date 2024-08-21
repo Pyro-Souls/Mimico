@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ImageBackground, ScrollView, StyleSheet } from 'react-native';
 import { GlobalSheet } from "../../../core/ui";
 import { Button, Input, Typography } from '../../../core/ui/atoms';
-import { Container } from "../../../core/ui/organisms";
+import { ContainerUI } from "../../../core/ui/organisms";
 import useStore from '../../../providers/store';
 import { updateCharacter, removeCharacter, addCharacter } from '../../../services/User.service';
 import { Characters } from '../../../common/types/Characters';
@@ -99,7 +99,7 @@ export default function CharacterSheet() {
 
 
     return (
-        <Container>
+        <ContainerUI>
             <ImageBackground style={GlobalSheet.image}>
                 <ScrollView contentContainerStyle={GlobalSheet.ViewContent}>
                     <View style={GlobalSheet.card}>
@@ -151,6 +151,6 @@ export default function CharacterSheet() {
                     </View>
                 </ScrollView>
             </ImageBackground>
-        </Container>
+        </ContainerUI>
     );
 }
