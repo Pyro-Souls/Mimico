@@ -1,5 +1,18 @@
 import * as Google from 'expo-auth-session/providers/google';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithCredential, sendPasswordResetEmail, fetchSignInMethodsForEmail, sendEmailVerification } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore";
+import { 
+    auth, 
+    getAuth,
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signOut, GoogleAuthProvider, 
+    signInWithPopup, 
+    sendPasswordResetEmail, 
+    fetchSignInMethodsForEmail, 
+    sendEmailVerification, 
+    firebaseApp, 
+} from "./firebase";
+import { Alert } from 'react-native';
 import { createUser, getUserById } from "./User.service";
 import { userData } from "../common/types/User";
 import { firebaseApp } from "./firebase";
@@ -10,16 +23,18 @@ export const signUp = async (username: string, name: string, lastName: string, e
     const userCredential = await createUserWithEmailAndPassword(getAuth(firebaseApp), email, password);
     await sendEmailVerification(userCredential.user);
 
-    // Create user data
-    const user: userData = {
-      uid: userCredential.user.uid,
-      email: userCredential.user.email,
-      name: name,
-      lastName: lastName,
-      username: username,
-      date: new Date(),
-      profileImage: null,
-    };
+    //Create user
+    const user = {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        name: name,
+        lastName: lastName,
+        username: username,
+        date: new Date(),
+        profileImage: null,
+        mimicoins: 100, //TODO: Global Variable
+        notes: null,
+    } as userData;
     console.log(user);
 
     const userCreatedId = await createUser(user);
@@ -67,6 +82,7 @@ export const logInWithGoogle = async () => {
 
       const u = await getUserById(user.uid) as userData;
       if (!u) {
+        //TODO: Revise this when enabling google login
         const newUser: userData = {
           uid: user.uid,
           username: null,
@@ -75,6 +91,8 @@ export const logInWithGoogle = async () => {
           lastName: null,
           date: new Date(),
           profileImage: null,
+          mimicoins: 100,
+          notes: null,
         };
         console.log(newUser);
 

@@ -6,8 +6,8 @@ const { width } = Dimensions.get('window');
 export const GlobalSheet = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "#F6EBD4"
   },
   ViewContent: {
     flex: 1,
@@ -17,6 +17,13 @@ export const GlobalSheet = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     justifyContent: "center",
+  },
+  headerContainer: {
+    height: 120,
+    width: '100%',
+    alignItems: 'center',
+    // backgroundColor: 'red',
+    justifyContent: 'center',
   },
   text: {
     fontSize: 25,

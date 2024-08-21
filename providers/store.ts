@@ -34,7 +34,9 @@ const useStore = create<AppState>((set, get) => ({
         name: null,
         lastName: null,
         date: null,
-        profileImage: null, // New field added to user data
+        profileImage: null,
+        mimicoins: null,
+        notes: null,
     },
     setUser: (user) => set({ user }),
     clearUser: () => set({
@@ -45,8 +47,10 @@ const useStore = create<AppState>((set, get) => ({
             name: null,
             lastName: null,
             date: null,
-            profileImage: null, // New field added to user data
-        },
+            profileImage: null,
+            mimicoins: null,
+            notes: null,
+        }
     }),
     data: [], // Added initial state for character data
     setData: (data) => set({ data }), // Added action to update character data

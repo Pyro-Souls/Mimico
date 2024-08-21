@@ -1,18 +1,25 @@
 import { Characters } from "../common/types/Characters";
 import { userData } from "../common/types/User";
+import {firestore } from "./firebase"
 import {
-    db,
-    doc,
-    getDoc,
-    getDocs,
-    collection,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    addDoc,
-    query,
-    where
+    db, 
+    doc, 
+    getDoc, 
+    getDocs, 
+    collection, 
+    setDoc, 
+    updateDoc, 
+    deleteDoc, 
+    addDoc, 
+    query, 
+    where, 
+    onSnapshot, 
+    storage,
+    ref,
+    uploadBytes,
+    getDownloadURL,
 } from "./firebase";
+import { type QuerySnapshot } from "firebase/firestore";
 
 
 const collectionName = 'users';
@@ -47,13 +54,14 @@ export const getUserById = async (id: string): Promise<userData> => {
     return result.data() as userData;
 }
 
-export const deleteUser = async (id: string) => {
+// DELETE
+export const deleteUser = async (id:string) => {
     const docRef = doc(db, collectionName, id);
     await deleteDoc(docRef);
 }
 
-const getArrayFromCollection = (collection: any) => {
-    return collection.docs.map((doc: any) => {
+const getArrayFromCollection = (collection:QuerySnapshot) => {
+    return collection.docs.map(doc => {
         return { ...doc.data(), id: doc.id };
     });
 }
@@ -119,3 +127,28 @@ export const removeCharacter = async (userId: string, id: string) => {
 
 
 
+// UPLOAD IMAGE Pol's Version, Jean tiene otra versión maybe mejor idk
+export const uploadProfileImage = async (file, uid:string) => {
+    const storageRef = ref(storage, `/files/${uid}/${file.name}`);
+    const data = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(data.ref);
+    const colRef = collection(db, collectionName);
+    await setDoc(doc(colRef, uid), { profileImage: url });
+    return url;
+};
+
+// UPLOAD PROFILE IMAGE
+// export const uploadProfileImage = async (userId: string, uri: string) => {
+//     const response = await fetch(uri);
+//     const blob = await response.blob();
+
+//     const storageRef = ref(storage, `images/${new Date().getTime()}`);
+//     await uploadBytes(storageRef, blob);
+
+//     const downloadURL = await getDownloadURL(storageRef);
+
+//     const userDocRef = doc(db, collectionName, userId);
+//     await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
+
+//     return downloadURL;
+// }

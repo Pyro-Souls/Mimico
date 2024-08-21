@@ -7,13 +7,15 @@ import { ITypography, TSize } from "./interface";
 
 export const Typography: FC<ITypography> = ({
   text,
+  align,
+  size = "sm",
   color = "text",
   fontWeight = "normal",
-  size = EnumTextSize?.sm,
 }) => {
   return (
     <View>
       <TypographyLabel
+        align={align}
         color={color}
         fontWeight={fontWeight}
         isText={!size.includes("h")}

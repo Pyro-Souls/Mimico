@@ -10,7 +10,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 import { getReactNativePersistence } from "firebase/auth/react-native";
 
-// Firebase configuration
+export { collection, doc, getDoc, setDoc, getDocs, query, updateDoc, deleteDoc, addDoc, where, onSnapshot } from "firebase/firestore";
+export { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, fetchSignInMethodsForEmail, sendEmailVerification } from "firebase/auth";
+export {getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_API_KEY,
   authDomain: `${process.env.EXPO_PUBLIC_PROJECT_ID}.firebaseapp.com`,
@@ -38,8 +41,6 @@ if (isWeb) {
       console.error("Failed to set persistence:", error);
     });
 }
+const app = initializeApp(firebaseConfig);
 
-export {
-  doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDocs, query, where,
-  getAuth, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, sendPasswordResetEmail, fetchSignInMethodsForEmail, sendEmailVerification,
-};
+export const firestore = getFirestore(app);

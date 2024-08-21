@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { View, FlatList, Pressable } from 'react-native';
+import { View, FlatList, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import useStore from '../../../providers/store';
 import { addCharacter } from '../../../services/User.service';
 import { Characters } from '../../../common/types/Characters';
 import { GlobalSheet } from "../../../core/ui";
-import { Typography } from "../../../core/ui/atoms";
-import { Container } from "../../../core/ui/organisms";
+import { Typography, Button, Checkbox, Input, Radio } from "../../../core/ui/atoms";
+import { ContainerUI } from "../../../core/ui/organisms";
 
 type CharacterCardProps = {
   characters: Characters;
@@ -64,32 +64,63 @@ const Tab: React.FC = () => {
   };
 
   return (
-    <Container>
-      <View style={GlobalSheet.ViewContent}>
-        <Typography size="h4" text="Tus fichas" />
-        <FlatList
-          data={[...data, { id: 'add' }]}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            if (item.id === 'add') {
-              return <AddNewCard onPress={handleAddNewCard} />;
-            } else {
-              const character = item as Characters;
-              return (
-                <CharacterCard
-                  characters={character}
-                  onPress={() => {
-                    setCurrentCharacter(character);
-                    router.push('/ficha');
-                  }}
-                />
-              );
-            }
-          }}
-          contentContainerStyle={GlobalSheet.list}
-        />
-      </View>
-    </Container>
+    <ContainerUI>
+      <ScrollView>
+        <View style={GlobalSheet.ViewContent}>
+          <Typography size="h4" text="Tus fichas" />
+          <FlatList
+            data={[...data, { id: 'add' }]}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => {
+              if (item.id === 'add') {
+                return <AddNewCard onPress={handleAddNewCard} />;
+              } else {
+                const character = item as Characters;
+                return (
+                  <CharacterCard
+                    characters={character}
+                    onPress={() => {
+                      setCurrentCharacter(character);
+                      router.push('/ficha');
+                    }}
+                  />
+                );
+              }
+            }}
+            contentContainerStyle={GlobalSheet.list}
+          />
+
+          {/* Additional UI Components */}
+          <Typography size="sm" text={`Current user logged in: ${user.email}${user.username}`} />
+          <Typography size="sm" text={`Current mimicoins: ${user.mimicoins}`} />
+
+          <Button title="Button Test" onPress={() => {}} />
+          <Button title="Button Test" variant="outline" onPress={() => {}} />
+          <Button title="Button Test" variant="text" onPress={() => {}} />
+          <Button title="Button Test" variant="dashed" onPress={() => {}} />
+          <Button title="Button Test" onPress={() => {}} icon="add" />
+
+          <Input placeholder="Escriba algo..." label="Usuario" />
+          <Input isArea placeholder="Escriba algo..." label="Comentarios" />
+
+          <Radio
+            options={[
+              { label: "Peru", value: 1 },
+              { label: "Colombia", value: 2 },
+              { label: "Argentina", value: 3 },
+            ]}
+          />
+
+          <Checkbox
+            options={[
+              { label: "Lechuga", value: 1 },
+              { label: "Tomate", value: 2 },
+              { label: "Queso", value: 3 },
+            ]}
+          />
+        </View>
+      </ScrollView>
+    </ContainerUI>
   );
 };
 

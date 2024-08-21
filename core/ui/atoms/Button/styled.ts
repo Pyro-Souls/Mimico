@@ -18,9 +18,7 @@ export const Touchable = styled.TouchableOpacity<ITouchable>`
   border: ${({ variant, theme }) =>
     variant === "text"
       ? "0px"
-      : variant === "dashed"
-      ? `3px dashed ${theme?.colors?.border?.secondary}`
-      : variant === "outline"
+      : variant === "dashed" || variant === "outline"
       ? `3px solid ${theme?.colors?.border?.secondary}`
       : `3px solid ${theme?.colors?.border?.default}`};
 `;
