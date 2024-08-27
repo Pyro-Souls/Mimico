@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { GlobalSheet } from "../../../core/ui";
 import { Button, Input, Typography } from "../../../core/ui/atoms";
-import { Container } from "../../../core/ui/organisms";
+import { ContainerUI } from "../../../core/ui/organisms";
 import useStore from "../../../providers/store";
 import {
   updateCharacter,
@@ -86,7 +86,7 @@ export default function CharacterSheet() {
   };
 
   return (
-    <Container>
+    <ContainerUI>
       <ScrollView contentContainerStyle={GlobalSheet.ViewContent}>
         <Typography size="h4" text="Crea tu ficha" />
         <View style={GlobalSheet.card}>
@@ -159,7 +159,7 @@ export default function CharacterSheet() {
           <Button title="Delete" onPress={handleDelete} color="primary" />
         </View>
       </ScrollView>
-    </Container>
+    </ContainerUI>
   );
 }
 
