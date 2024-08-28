@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
-import { View, FlatList, Pressable, Text } from "react-native";
+import { View, FlatList, Pressable, Text, Alert } from "react-native";
 import { router } from "expo-router";
 import useStore from "../../../providers/store";
 import { addCharacter } from "../../../services/User.service";
 import { CharacterData } from "../../../common/types/CharacterData";
-import { GlobalSheet } from "../../../core/ui/GlobalSheet"; // Убедитесь, что этот файл существует и содержит необходимые стили
+import { GlobalSheet } from "../../../core/ui/GlobalSheet";
 import {
   Typography,
   Button,
   Checkbox,
   Input,
   Radio,
-} from "../../../core/ui/atoms"; // Проверьте правильность пути и экспорта
-import { ContainerUI } from "../../../core/ui/organisms/Container"; // Проверьте правильность пути и экспорта
+} from "../../../core/ui/atoms";
+import { ContainerUI } from "../../../core/ui/organisms/Container";
 
 type CharacterCardProps = {
   characterData: CharacterData;
@@ -49,6 +49,14 @@ const Tab: React.FC = () => {
 
   const handleAddNewCard = async () => {
     if (user?.uid) {
+      if (data.length >= 3) {
+        Alert.alert(
+          "¡Uh, oh! ¡El Campamento se está llenando!",
+          "Vamos a desbloquear uno más grande"
+        );
+        return;
+      }
+
       const newCharacter: CharacterData = {
         id: String(data.length + 1),
         title: `New Character ${data.length + 1}`,

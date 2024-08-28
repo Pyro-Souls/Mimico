@@ -90,15 +90,17 @@ export default function CharacterSheet() {
       <ScrollView contentContainerStyle={GlobalSheet.ViewContent}>
         <Typography size="h4" text="Crea tu ficha" />
         <View style={GlobalSheet.card}>
-          {editing && currentCharacter ? (
+          <Typography size="h5" text="Datos generales" />
+          <Typography size="h6" text="Nombre" />
+          <Input
+            value={nombre}
+            onChangeText={setNombre}
+            placeholder="Rellenar"
+            editable={editing}
+          />
+
+          {editing && currentCharacter && (
             <>
-              <Typography size="h5" text="Datos generales" />
-              <Typography size="h6" text="Nombre" />
-              <Input
-                value={nombre}
-                onChangeText={setNombre}
-                placeholder="Rellenar"
-              />
               <Typography size="h6" text="Competencias" />
               {competencias.map((competencia: Competencia, index: number) => (
                 <View key={index} style={styles.competencia}>
@@ -123,33 +125,32 @@ export default function CharacterSheet() {
                 onPress={handleAddCompetencia}
               />
             </>
-          ) : (
-            currentCharacter && (
-              <>
-                <Typography size="h5" text={currentCharacter.title} />
-                <Typography
-                  size="md"
-                  text={currentCharacter.nombre || "No name"}
-                />
-                {currentCharacter.competencias &&
-                currentCharacter.competencias.length > 0 ? (
-                  currentCharacter.competencias.map(
-                    (competencia: Competencia, index: number) => (
-                      <View key={index} style={styles.competencia}>
-                        <Typography
-                          size="sm"
-                          text={`${competencia.title}: ${competencia.value}`}
-                        />
-                      </View>
-                    )
+          )}
+
+          {!editing && currentCharacter && (
+            <>
+              <Typography
+                size="md"
+                text={currentCharacter.nombre || "No name"}
+              />
+              {currentCharacter.competencias &&
+              currentCharacter.competencias.length > 0 ? (
+                currentCharacter.competencias.map(
+                  (competencia: Competencia, index: number) => (
+                    <View key={index} style={styles.competencia}>
+                      <Typography
+                        size="sm"
+                        text={`${competencia.title}: ${competencia.value}`}
+                      />
+                    </View>
                   )
-                ) : (
-                  <Text style={styles.noCompetencias}>
-                    No competencias available
-                  </Text>
-                )}
-              </>
-            )
+                )
+              ) : (
+                <Text style={styles.noCompetencias}>
+                  No competencias available
+                </Text>
+              )}
+            </>
           )}
 
           <Button
