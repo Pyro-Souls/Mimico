@@ -8,9 +8,9 @@ import { GlobalSheet } from "../../../core/ui/GlobalSheet";
 import {
   Typography,
   Button,
-  Checkbox,
   Input,
   Radio,
+  Checkbox,
 } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms/Container";
 
@@ -24,7 +24,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
   onPress,
 }) => (
   <Pressable style={GlobalSheet.card} onPress={onPress}>
-    <Typography size="h5" text={characterData.title} />
+    <Typography size="h5" text={characterData.nombre || "Unnamed Character"} />
   </Pressable>
 );
 
@@ -61,8 +61,9 @@ const Tab: React.FC = () => {
         id: String(data.length + 1),
         title: `New Character ${data.length + 1}`,
         userId: user.uid,
-        nombre: "New Name",
+        nombre: "Nombre",
         competencias: [],
+        imageUri: "",
       };
       try {
         await addCharacter(user.uid, newCharacter);

@@ -38,6 +38,8 @@ export const signUp = async (
       lastName: lastName,
       username: username,
       date: new Date(),
+      mimicoins: 100,
+      notes: null,
       profileImage: null,
     };
     console.log(user);
@@ -94,6 +96,8 @@ export const logInWithGoogle = async () => {
           name: user.displayName,
           lastName: null,
           date: new Date(),
+          mimicoins: 100,
+          notes: null,
           profileImage: null,
         };
         console.log(newUser);

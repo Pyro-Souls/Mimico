@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { GlobalSheet } from "../../../core/ui";
 import { Button, Input, Typography } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms";
 import useStore from "../../../providers/store";
+import { router } from "expo-router";
 import {
   updateCharacter,
   removeCharacter,
 } from "../../../services/User.service";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "../../../services/firebase";
 import {
   CharacterData,
   Competencia,
@@ -19,13 +23,51 @@ export default function CharacterSheet() {
   const [nombre, setNombre] = useState<string>("");
   const [competencias, setCompetencias] = useState<Competencia[]>([]);
   const [editing, setEditing] = useState<boolean>(false);
+  const [imageUri, setImageUri] = useState<string | undefined>(undefined);
+  const [uploading, setUploading] = useState<boolean>(false);
 
   useEffect(() => {
     if (currentCharacter) {
       setNombre(currentCharacter.nombre || "");
       setCompetencias(currentCharacter.competencias || []);
+      setImageUri(currentCharacter.imageUri);
     }
   }, [currentCharacter]);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      if (uri) {
+        await uploadImage(uri);
+      }
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    setUploading(true);
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const storageRef = ref(
+        storage,
+        `characters/${user.uid}/${currentCharacter?.id}`
+      );
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      setImageUri(downloadURL);
+      setUploading(false);
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+      setUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (currentCharacter && user?.uid) {
@@ -33,6 +75,7 @@ export default function CharacterSheet() {
         ...currentCharacter,
         nombre,
         competencias,
+        imageUri, // imageUri может быть undefined, это нормально
         userId: user.uid,
       };
 
@@ -88,6 +131,8 @@ export default function CharacterSheet() {
   return (
     <ContainerUI>
       <ScrollView contentContainerStyle={GlobalSheet.ViewContent}>
+        <Button title="Back" onPress={() => router.back()} />
+
         <Typography size="h4" text="Crea tu ficha" />
         <View style={GlobalSheet.card}>
           <Typography size="h5" text="Datos generales" />
@@ -99,7 +144,21 @@ export default function CharacterSheet() {
             editable={editing}
           />
 
-          {editing && currentCharacter && (
+          {/* Image Upload Section */}
+          <View style={styles.imageSection}>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.image} />
+            ) : (
+              <Button
+                title="¡Súbenos tu aspecto!"
+                variant="dashed"
+                onPress={pickImage}
+              />
+            )}
+          </View>
+
+          {/* Competencias Section */}
+          {currentCharacter && (
             <>
               <Typography size="h6" text="Competencias" />
               {competencias.map((competencia: Competencia, index: number) => (
@@ -120,19 +179,28 @@ export default function CharacterSheet() {
                   />
                 </View>
               ))}
-              <Button
-                title="Agregar Competencia"
-                onPress={handleAddCompetencia}
-              />
+              {editing && (
+                <Button
+                  title="Agregar Competencia"
+                  onPress={handleAddCompetencia}
+                />
+              )}
             </>
           )}
 
+          {/* Display Mode */}
           {!editing && currentCharacter && (
             <>
               <Typography
                 size="md"
                 text={currentCharacter.nombre || "No name"}
               />
+              {currentCharacter.imageUri && (
+                <Image
+                  source={{ uri: currentCharacter.imageUri }}
+                  style={styles.image}
+                />
+              )}
               {currentCharacter.competencias &&
               currentCharacter.competencias.length > 0 ? (
                 currentCharacter.competencias.map(
@@ -172,5 +240,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "grey",
     marginVertical: 16,
+  },
+  imageSection: {
+    marginVertical: 20,
+    alignItems: "center",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+  },
+  uploadPrompt: {
+    color: "blue",
+    textDecorationLine: "underline",
   },
 });

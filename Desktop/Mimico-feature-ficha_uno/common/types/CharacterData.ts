@@ -9,4 +9,5 @@ export interface CharacterData {
   title: string;
   nombre: string;
   competencias: Competencia[];
+  imageUri?: string;
 }

@@ -1,4 +1,4 @@
-import { Characters } from "../common/types/CharacterData";
+import { CharacterData } from "../common/types/CharacterData";
 import { userData } from "../common/types/User";
 import {
   db,
@@ -27,19 +27,19 @@ export const updateUser = async (id: string, obj: Partial<userData>) => {
   await updateDoc(docRef, obj);
 };
 
-export const getUsers = async (): Promise<userData[]> => {
+export const getUsers = async () => {
   const colRef = collection(db, collectionName);
   const result = await getDocs(query(colRef));
   return getArrayFromCollection(result);
 };
 
-export const getUsersByCondition = async (value: any): Promise<userData[]> => {
+export const getUsersByCondition = async (value: string) => {
   const colRef = collection(db, collectionName);
   const result = await getDocs(query(colRef, where("age", "==", value)));
   return getArrayFromCollection(result);
 };
 
-export const getUserById = async (id: string): Promise<userData> => {
+export const getUserById = async (id: string) => {
   const docRef = doc(db, collectionName, id);
   const result = await getDoc(docRef);
   return result.data() as userData;
@@ -62,7 +62,7 @@ const getUserCharactersCollection = (userId: string) =>
 // CREATE
 export const addCharacter = async (
   userId: string,
-  characterData: Characters
+  characterData: CharacterData
 ) => {
   try {
     const colRef = getUserCharactersCollection(userId);
@@ -78,12 +78,12 @@ export const addCharacter = async (
 // READ
 export const getUserCharacters = async (
   userId: string
-): Promise<Characters[]> => {
+): Promise<CharacterData[]> => {
   const colRef = getUserCharactersCollection(userId);
   const q = query(colRef, where("userId", "==", userId));
   const querySnapshot = await getDocs(q);
 
-  const characters: Characters[] = [];
+  const characters: CharacterData[] = [];
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     characters.push({
@@ -92,7 +92,8 @@ export const getUserCharacters = async (
       title: data.title,
       nombre: data.nombre,
       competencias: data.competencias,
-    } as Characters);
+      imageUri: data.imageUri, // Обработка imageUri
+    } as CharacterData);
   });
 
   return characters;
@@ -102,7 +103,7 @@ export const getUserCharacters = async (
 export const updateCharacter = async (
   userId: string,
   characterId: string,
-  updatedCharacter: Partial<Characters>
+  updatedCharacter: Partial<CharacterData>
 ) => {
   try {
     const docRef = doc(db, "users", userId, "characters", characterId);
