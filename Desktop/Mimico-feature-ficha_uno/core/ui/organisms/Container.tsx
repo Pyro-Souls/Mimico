@@ -1,7 +1,13 @@
 import { ReactNode } from "react";
 import { GlobalSheet } from "../GlobalSheet";
 import { Button, Typography } from "../atoms";
-import { Image, StyleSheet, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  View,
+  ViewStyle,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export type TMode = "logo" | "menu" | "profile";
@@ -57,22 +63,43 @@ export const ContainerUI = ({
   mode,
   module,
   withCog,
+  header,
+  contentStyle,
 }: {
   mode?: TMode;
   module?: string;
   withCog?: boolean;
   children: ReactNode;
+  header?: {
+    title: string;
+    leftAction: () => void;
+    rightAction: () => void;
+    rightActionTitle: string;
+    rightActionHandler: () => void;
+  };
+  contentStyle?: ViewStyle;
 }) => {
   const ModeComponent = MODE_OBJECT[mode as TMode];
 
   return (
     <SafeAreaView style={GlobalSheet.container}>
+      {header && (
+        <View style={GlobalSheet.header}>
+          <TouchableOpacity onPress={header.leftAction}>
+            <Typography size="h4" text="Back" />
+          </TouchableOpacity>
+          <Typography size="h4" text={header.title} />
+          <TouchableOpacity onPress={header.rightActionHandler}>
+            <Typography size="h4" text={header.rightActionTitle} />
+          </TouchableOpacity>
+        </View>
+      )}
       {mode && (
         <View style={GlobalSheet.header}>
           <ModeComponent module={module ?? ""} withCog={withCog} />
         </View>
       )}
-      {children}
+      <View style={contentStyle}>{children}</View>
     </SafeAreaView>
   );
 };
@@ -88,7 +115,6 @@ const provisionalSheet = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-
   // PROFILE BAR
   profileBarContainer: {
     width: "100%",

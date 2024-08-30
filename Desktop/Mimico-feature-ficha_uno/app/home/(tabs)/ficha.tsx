@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet, Image } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  FlatList,
+  Alert,
+  Button,
+  ScrollView,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { GlobalSheet } from "../../../core/ui";
-import { Button, Input, Typography } from "../../../core/ui/atoms";
+import { Input, Typography } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms";
 import useStore from "../../../providers/store";
 import { router } from "expo-router";
@@ -10,29 +18,52 @@ import {
   updateCharacter,
   removeCharacter,
 } from "../../../services/User.service";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  deleteObject,
+} from "firebase/storage";
 import { storage } from "../../../services/firebase";
 import {
-  CharacterData,
   Competencia,
+  CharacterData,
+  Characteristicas,
 } from "../../../common/types/CharacterData";
+import CharacteristicaCard from "./characteristicaCard";
+import AddCharacteristicaModal from "./addCharacteristicaModal";
 
 export default function CharacterSheet() {
   const { currentCharacter, data, setData, setCurrentCharacter, user } =
     useStore();
   const [nombre, setNombre] = useState<string>("");
   const [competencias, setCompetencias] = useState<Competencia[]>([]);
-  const [editing, setEditing] = useState<boolean>(false);
+  const [characteristicas, setCharacteristicas] = useState<Characteristicas[]>(
+    []
+  );
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [isDataChanged, setIsDataChanged] = useState<boolean>(false);
   const [imageUri, setImageUri] = useState<string | undefined>(undefined);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [deletingImage, setDeletingImage] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (currentCharacter) {
       setNombre(currentCharacter.nombre || "");
       setCompetencias(currentCharacter.competencias || []);
+      setCharacteristicas(currentCharacter.characteristicas || []);
       setImageUri(currentCharacter.imageUri);
     }
   }, [currentCharacter]);
+
+  useEffect(() => {
+    if (!isEditMode) {
+      setIsDataChanged(false);
+    }
+  }, [isEditMode]);
+
+  const markAsChanged = () => setIsDataChanged(true);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -46,6 +77,7 @@ export default function CharacterSheet() {
       const uri = result.assets[0].uri;
       if (uri) {
         await uploadImage(uri);
+        markAsChanged();
       }
     }
   };
@@ -69,13 +101,33 @@ export default function CharacterSheet() {
     }
   };
 
+  const deleteImage = async () => {
+    setDeletingImage(true);
+    try {
+      if (imageUri) {
+        const imageRef = ref(
+          storage,
+          `characters/${user.uid}/${currentCharacter?.id}`
+        );
+        await deleteObject(imageRef);
+        setImageUri(undefined);
+        setDeletingImage(false);
+        markAsChanged();
+      }
+    } catch (error) {
+      console.error("Error deleting image: ", error);
+      setDeletingImage(false);
+    }
+  };
+
   const handleSave = async () => {
     if (currentCharacter && user?.uid) {
       const updatedCharacter: CharacterData = {
         ...currentCharacter,
         nombre,
         competencias,
-        imageUri, // imageUri может быть undefined, это нормально
+        characteristicas,
+        imageUri,
         userId: user.uid,
       };
 
@@ -88,7 +140,8 @@ export default function CharacterSheet() {
         setData(updatedData);
 
         alert("Character updated successfully");
-        setEditing(false);
+        setIsEditMode(false);
+        setIsDataChanged(false);
         setCurrentCharacter(null);
       } catch (error) {
         console.error("Error updating character:", error);
@@ -99,6 +152,21 @@ export default function CharacterSheet() {
 
   const handleAddCompetencia = () => {
     setCompetencias([...competencias, { title: "", value: "" }]);
+    markAsChanged();
+  };
+
+  const handleAddCharacteristica = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleSaveCharacteristica = (
+    type: "number" | "text",
+    title: string
+  ) => {
+    const newCharacteristica: Characteristicas = { title, type };
+    setCharacteristicas([...characteristicas, newCharacteristica]);
+    setIsModalVisible(false);
+    markAsChanged();
   };
 
   const handleCompetenciaChange = (
@@ -109,6 +177,21 @@ export default function CharacterSheet() {
     const updatedCompetencias = [...competencias];
     updatedCompetencias[index][key] = value;
     setCompetencias(updatedCompetencias);
+    markAsChanged();
+  };
+
+  const handleRemoveCompetencia = (index: number) => {
+    const updatedCompetencias = competencias.filter((_, i) => i !== index);
+    setCompetencias(updatedCompetencias);
+    markAsChanged();
+  };
+
+  const handleRemoveCharacteristica = (index: number) => {
+    const updatedCharacteristicas = characteristicas.filter(
+      (_, i) => i !== index
+    );
+    setCharacteristicas(updatedCharacteristicas);
+    markAsChanged();
   };
 
   const handleDelete = async () => {
@@ -128,130 +211,215 @@ export default function CharacterSheet() {
     }
   };
 
+  const handleEditToggle = () => {
+    setIsEditMode(!isEditMode);
+    if (!isEditMode) {
+      markAsChanged();
+    }
+  };
+
+  const handleBackPress = () => {
+    if (isDataChanged) {
+      Alert.alert("Unsaved changes", "Are you sure you don't want to save?", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => router.back(),
+        },
+      ]);
+    } else {
+      router.back();
+    }
+  };
+
+  const renderCompetenciaItem = ({
+    item,
+    index,
+  }: {
+    item: Competencia;
+    index: number;
+  }) => (
+    <View style={styles.competencia}>
+      <Input
+        value={item.title}
+        onChangeText={(text) => handleCompetenciaChange(index, "title", text)}
+        placeholder="Competencia"
+        editable={isEditMode}
+      />
+      <Input
+        value={item.value}
+        onChangeText={(text) => handleCompetenciaChange(index, "value", text)}
+        placeholder="Valor"
+        editable={isEditMode}
+      />
+      {isEditMode && (
+        <Button
+          title="Eliminar campo"
+          onPress={() => handleRemoveCompetencia(index)}
+          color="red"
+        />
+      )}
+    </View>
+  );
+
+  const renderCharacteristicaItem = ({
+    item,
+    index,
+  }: {
+    item: Characteristicas;
+    index: number;
+  }) => (
+    <View style={styles.characteristicaCard}>
+      <CharacteristicaCard key={index} {...item} />
+      {isEditMode && (
+        <Button
+          title="Eliminar característica"
+          onPress={() => handleRemoveCharacteristica(index)}
+          color="red"
+        />
+      )}
+    </View>
+  );
+
   return (
-    <ContainerUI>
-      <ScrollView contentContainerStyle={GlobalSheet.ViewContent}>
-        <Button title="Back" onPress={() => router.back()} />
-
-        <Typography size="h4" text="Crea tu ficha" />
-        <View style={GlobalSheet.card}>
-          <Typography size="h5" text="Datos generales" />
-          <Typography size="h6" text="Nombre" />
-          <Input
-            value={nombre}
-            onChangeText={setNombre}
-            placeholder="Rellenar"
-            editable={editing}
+    <ContainerUI
+      header={{
+        title: "Ficha de Personaje",
+        leftAction: handleBackPress,
+        rightAction: handleEditToggle,
+        rightActionTitle: isEditMode ? "Guardar" : "Editar",
+        rightActionHandler: isEditMode ? handleSave : handleEditToggle,
+      }}
+      contentStyle={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View>
+          <Typography
+            size="h4"
+            text="Datos generales"
+            style={styles.sectionTitle}
           />
-
-          {/* Image Upload Section */}
-          <View style={styles.imageSection}>
-            {imageUri ? (
-              <Image source={{ uri: imageUri }} style={styles.image} />
-            ) : (
+          <View style={GlobalSheet.card}>
+            <Typography size="h5" text="Nombre" />
+            <Input
+              value={nombre}
+              onChangeText={(text) => {
+                setNombre(text);
+                markAsChanged();
+              }}
+              placeholder="Rellenar"
+              editable={isEditMode}
+            />
+            <View style={styles.imageSection}>
+              {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.image} />
+              ) : (
+                <Button title="¡Súbenos tu aspecto!" onPress={pickImage} />
+              )}
+              {imageUri && (
+                <>
+                  <Button
+                    title="Editar image"
+                    onPress={pickImage}
+                    color="blue"
+                  />
+                  <Button
+                    title={deletingImage ? "Deleting..." : "Delete Image"}
+                    onPress={deleteImage}
+                    color="red"
+                    disabled={deletingImage}
+                  />
+                </>
+              )}
+            </View>
+            <Typography size="h6" text="Competencias" />
+            <FlatList
+              data={competencias}
+              renderItem={renderCompetenciaItem}
+              keyExtractor={(_, index) => index.toString()}
+              horizontal
+            />
+            {isEditMode && (
               <Button
-                title="¡Súbenos tu aspecto!"
-                variant="dashed"
-                onPress={pickImage}
+                title="Añadir Competencia"
+                onPress={handleAddCompetencia}
+                color="blue"
               />
             )}
           </View>
-
-          {/* Competencias Section */}
-          {currentCharacter && (
-            <>
-              <Typography size="h6" text="Competencias" />
-              {competencias.map((competencia: Competencia, index: number) => (
-                <View key={index} style={styles.competencia}>
-                  <Input
-                    value={competencia.title}
-                    onChangeText={(text) =>
-                      handleCompetenciaChange(index, "title", text)
-                    }
-                    placeholder="Competencia"
-                  />
-                  <Input
-                    value={competencia.value}
-                    onChangeText={(text) =>
-                      handleCompetenciaChange(index, "value", text)
-                    }
-                    placeholder="Valor"
-                  />
-                </View>
-              ))}
-              {editing && (
-                <Button
-                  title="Agregar Competencia"
-                  onPress={handleAddCompetencia}
-                />
-              )}
-            </>
-          )}
-
-          {/* Display Mode */}
-          {!editing && currentCharacter && (
-            <>
-              <Typography
-                size="md"
-                text={currentCharacter.nombre || "No name"}
-              />
-              {currentCharacter.imageUri && (
-                <Image
-                  source={{ uri: currentCharacter.imageUri }}
-                  style={styles.image}
-                />
-              )}
-              {currentCharacter.competencias &&
-              currentCharacter.competencias.length > 0 ? (
-                currentCharacter.competencias.map(
-                  (competencia: Competencia, index: number) => (
-                    <View key={index} style={styles.competencia}>
-                      <Typography
-                        size="sm"
-                        text={`${competencia.title}: ${competencia.value}`}
-                      />
-                    </View>
-                  )
-                )
-              ) : (
-                <Text style={styles.noCompetencias}>
-                  No competencias available
-                </Text>
-              )}
-            </>
-          )}
-
-          <Button
-            title={editing ? "Save" : "Edit"}
-            onPress={editing ? handleSave : () => setEditing(true)}
+          <Typography
+            size="h4"
+            text="Características"
+            style={styles.sectionTitle}
           />
-          <Button title="Delete" onPress={handleDelete} color="primary" />
+          <View style={GlobalSheet.card}>
+            <FlatList
+              data={characteristicas}
+              renderItem={renderCharacteristicaItem}
+              keyExtractor={(_, index) => index.toString()}
+              horizontal
+            />
+            {isEditMode && (
+              <Button
+                title="Añadir Característica"
+                onPress={handleAddCharacteristica}
+                color="blue"
+              />
+            )}
+          </View>
         </View>
+        <AddCharacteristicaModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          onSave={handleSaveCharacteristica}
+        />
       </ScrollView>
+      {isEditMode && (
+        <View style={styles.footer}>
+          <Button
+            title="Eliminar Personaje"
+            onPress={handleDelete}
+            color="red"
+          />
+        </View>
+      )}
     </ContainerUI>
   );
 }
 
 const styles = StyleSheet.create({
-  competencia: {
-    marginVertical: 8,
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
   },
-  noCompetencias: {
-    textAlign: "center",
-    color: "grey",
-    marginVertical: 16,
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  sectionTitle: {
+    marginBottom: 10,
+  },
+  competencia: {
+    marginBottom: 20,
   },
   imageSection: {
-    marginVertical: 20,
+    marginTop: 10,
+    marginBottom: 20,
     alignItems: "center",
   },
   image: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
   },
-  uploadPrompt: {
-    color: "blue",
-    textDecorationLine: "underline",
+  footer: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  characteristicaCard: {
+    marginBottom: 20,
   },
 });

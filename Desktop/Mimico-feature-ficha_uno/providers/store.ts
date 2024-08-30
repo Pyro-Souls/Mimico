@@ -14,6 +14,10 @@ interface Competencia {
   title: string;
   value: string;
 }
+export interface Characteristicas {
+  title: string;
+  type?: "number" | "text";
+}
 
 // Update the AppState interface to include new state and actions
 interface AppState {

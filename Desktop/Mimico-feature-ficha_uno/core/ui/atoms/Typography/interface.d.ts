@@ -12,6 +12,7 @@ export interface ITypography {
   size?: TSize;
   color?: TThemeColor;
   fontWeight?: IBoldTypes;
+  style?: ViewStyle | TextStyle;
 }
 
 export type IBoldTypes = "normal" | "bolder" | "bold";
