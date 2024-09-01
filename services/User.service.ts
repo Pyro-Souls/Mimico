@@ -69,27 +69,37 @@ const getArrayFromCollection = (collection:QuerySnapshot) => {
 }
 
 // UPLOAD IMAGE Pol's Version, Jean tiene otra versión maybe mejor idk
-export const uploadProfileImage = async (file, uid:string) => {
-    const storageRef = ref(storage, `/files/${uid}/${file.name}`);
-    const data = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(data.ref);
-    const colRef = collection(db, collectionName);
-    await setDoc(doc(colRef, uid), { profileImage: url });
-    return url;
+//export const uploadProfileImage = async (file, uid:string) => {
+  //  const storageRef = ref(storage, `/files/${uid}/${file.name}`);
+  //  const data = await uploadBytes(storageRef, file);
+  //  const url = await getDownloadURL(data.ref);
+ //   const colRef = collection(db, collectionName);
+//    await setDoc(doc(colRef, uid), { profileImage: url });
+//    return url;
+//};
+
+
+
+ // UPLOAD PROFILE IMAGE
+export const uploadProfileImage = async (userId: string, uri: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    const storageRef = ref(storage, `profileImages/${userId}/${new Date().getTime()}`);
+    await uploadBytes(storageRef, blob);
+
+    const downloadURL = await getDownloadURL(storageRef);
+
+    return downloadURL;
+};
+// FETCH USER PROFILE DATA
+export const fetchProfileData = async (userId: string): Promise<userData> => {
+    const docRef = doc(db, collectionName, userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap.data() as userData;
+    } else {
+        throw new Error('No such document!');
+    }
 };
 
-// UPLOAD PROFILE IMAGE
-// export const uploadProfileImage = async (userId: string, uri: string) => {
-//     const response = await fetch(uri);
-//     const blob = await response.blob();
-
-//     const storageRef = ref(storage, `images/${new Date().getTime()}`);
-//     await uploadBytes(storageRef, blob);
-
-//     const downloadURL = await getDownloadURL(storageRef);
-
-//     const userDocRef = doc(db, collectionName, userId);
-//     await setDoc(userDocRef, { profileImageUrl: downloadURL }, { merge: true });
-
-//     return downloadURL;
-// }
