@@ -1,37 +1,37 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { Modal, View, TextInput, StyleSheet } from "react-native";
+import { Button, Typography } from "../core/ui/atoms";
 
-const AddCharacteristicaModal = ({
+const AddCompetenciaModal = ({
   visible,
   onClose,
   onSave,
 }: {
   visible: boolean;
   onClose: () => void;
-  onSave: (type: "number" | "text", value: string) => void;
+  onSave: (value: string) => void;
 }) => {
-  const [type, setType] = useState<"number" | "text">("text");
   const [value, setValue] = useState<string>("");
 
   const handleSave = () => {
-    onSave(type, value);
-    setValue("");
-    onClose();
+    if (value.trim()) {
+      // Prevent saving empty values
+      onSave(value);
+      setValue(""); // Clear input field
+      onClose(); // Close modal
+    }
   };
 
   return (
     <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}> Select Type </Text>
-          <Button title="Number" onPress={() => setType("number")} />
-          <Button title="Text" onPress={() => setType("text")} />
+          <Typography size="h5" text="Add Competencia" />
           <TextInput
             style={styles.input}
             value={value}
             onChangeText={setValue}
-            placeholder={type === "number" ? "Enter number" : "Enter text"}
-            keyboardType={type === "number" ? "numeric" : "default"}
+            placeholder="Enter Competencia"
           />
           <Button title="Save" onPress={handleSave} />
           <Button title="Cancel" onPress={onClose} />
@@ -55,11 +55,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -69,4 +64,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddCharacteristicaModal;
+export default AddCompetenciaModal;

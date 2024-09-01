@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  Image,
-  FlatList,
-  Alert,
-  Button,
   ScrollView,
+  Button,
+  Alert,
+  TouchableOpacity,
+  Image,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { GlobalSheet } from "../../../core/ui";
 import { Input, Typography } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms";
@@ -18,20 +17,37 @@ import {
   updateCharacter,
   removeCharacter,
 } from "../../../services/User.service";
-import {
-  getDownloadURL,
-  ref,
-  uploadBytes,
-  deleteObject,
-} from "firebase/storage";
-import { storage } from "../../../services/firebase";
+import AddCharacteristicaModal from "../../../components/addCharacteristicaModal";
+import ImageSection from "../../../components/image";
+import Competencias from "../../../components/competencias";
+import CharacteristicasList from "../../../components/characteristicas";
 import {
   Competencia,
-  CharacterData,
   Characteristicas,
 } from "../../../common/types/CharacterData";
-import CharacteristicaCard from "./characteristicaCard";
-import AddCharacteristicaModal from "./addCharacteristicaModal";
+import * as ImagePicker from "expo-image-picker";
+
+const CustomHeader = ({
+  title,
+  onBackPress,
+}: {
+  title: string;
+  onBackPress: () => void;
+}) => {
+  return (
+    <View style={styles.headerContainer}>
+      <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+        <Image
+          source={require("../../../assets/icons/back-icon-alternative.png")}
+          style={styles.backIcon}
+        />
+      </TouchableOpacity>
+      <View style={styles.titleContainer}>
+        <Typography size="h4" text={title} />
+      </View>
+    </View>
+  );
+};
 
 export default function CharacterSheet() {
   const { currentCharacter, data, setData, setCurrentCharacter, user } =
@@ -44,7 +60,6 @@ export default function CharacterSheet() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [isDataChanged, setIsDataChanged] = useState<boolean>(false);
   const [imageUri, setImageUri] = useState<string | undefined>(undefined);
-  const [uploading, setUploading] = useState<boolean>(false);
   const [deletingImage, setDeletingImage] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -54,6 +69,11 @@ export default function CharacterSheet() {
       setCompetencias(currentCharacter.competencias || []);
       setCharacteristicas(currentCharacter.characteristicas || []);
       setImageUri(currentCharacter.imageUri);
+    } else {
+      setNombre("");
+      setCompetencias([]);
+      setCharacteristicas([]);
+      setImageUri(undefined);
     }
   }, [currentCharacter]);
 
@@ -66,88 +86,102 @@ export default function CharacterSheet() {
   const markAsChanged = () => setIsDataChanged(true);
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const uri = result.assets[0].uri;
-      if (uri) {
-        await uploadImage(uri);
-        markAsChanged();
-      }
-    }
-  };
-
-  const uploadImage = async (uri: string) => {
-    setUploading(true);
-    try {
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const storageRef = ref(
-        storage,
-        `characters/${user.uid}/${currentCharacter?.id}`
-      );
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
-      setImageUri(downloadURL);
-      setUploading(false);
-    } catch (error) {
-      console.error("Error uploading image: ", error);
-      setUploading(false);
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+      markAsChanged();
     }
   };
 
   const deleteImage = async () => {
     setDeletingImage(true);
     try {
-      if (imageUri) {
-        const imageRef = ref(
-          storage,
-          `characters/${user.uid}/${currentCharacter?.id}`
-        );
-        await deleteObject(imageRef);
-        setImageUri(undefined);
-        setDeletingImage(false);
-        markAsChanged();
-      }
-    } catch (error) {
-      console.error("Error deleting image: ", error);
+      setImageUri(undefined);
+      markAsChanged();
+    } finally {
       setDeletingImage(false);
     }
   };
 
   const handleSave = async () => {
-    if (currentCharacter && user?.uid) {
-      const updatedCharacter: CharacterData = {
+    if (!currentCharacter || !user.uid) {
+      Alert.alert("Ошибка", "Персонаж или пользователь не выбран.");
+      return;
+    }
+
+    try {
+      const updatedCharacter = {
         ...currentCharacter,
         nombre,
         competencias,
         characteristicas,
-        imageUri,
-        userId: user.uid,
+        imageUri: imageUri || "",
       };
 
-      try {
-        await updateCharacter(user.uid, currentCharacter.id, updatedCharacter);
-
-        const updatedData = data.map((item) =>
-          item.id === currentCharacter.id ? updatedCharacter : item
-        );
-        setData(updatedData);
-
-        alert("Character updated successfully");
-        setIsEditMode(false);
-        setIsDataChanged(false);
-        setCurrentCharacter(null);
-      } catch (error) {
-        console.error("Error updating character:", error);
-        alert("Failed to update character");
+      if (typeof currentCharacter.id !== "string") {
+        throw new Error("Character ID is not a valid string.");
       }
+
+      await updateCharacter(user.uid, currentCharacter.id, updatedCharacter);
+
+      const updatedData = data.map((char) =>
+        char.id === currentCharacter.id ? updatedCharacter : char
+      );
+      setData(updatedData);
+      setCurrentCharacter(updatedCharacter);
+
+      setIsDataChanged(false);
+      setIsEditMode(false);
+
+      Alert.alert("Успех", "Данные персонажа успешно сохранены.");
+    } catch (error) {
+      console.error("Error updating character:", error);
+      Alert.alert("Ошибка", "Не удалось сохранить данные персонажа.");
     }
+  };
+
+  const handleDelete = async () => {
+    if (!currentCharacter || !user.uid) {
+      Alert.alert("Ошибка", "Персонаж или пользователь не выбран.");
+      return;
+    }
+
+    Alert.alert(
+      "Подтверждение удаления",
+      "Вы уверены, что хотите удалить этого персонажа?",
+      [
+        {
+          text: "Отмена",
+          style: "cancel",
+        },
+        {
+          text: "Удалить",
+          onPress: async () => {
+            try {
+              await removeCharacter(user.uid, currentCharacter.id!);
+
+              const updatedData = data.filter(
+                (char) => char.id !== currentCharacter.id
+              );
+              setData(updatedData);
+              setCurrentCharacter(null);
+
+              Alert.alert("Удаление", "Персонаж успешно удален.");
+              router.back();
+            } catch (error) {
+              Alert.alert("Ошибка", "Не удалось удалить персонажа.");
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   const handleAddCompetencia = () => {
@@ -194,30 +228,6 @@ export default function CharacterSheet() {
     markAsChanged();
   };
 
-  const handleDelete = async () => {
-    if (currentCharacter && user?.uid) {
-      try {
-        await removeCharacter(user.uid, currentCharacter.id);
-        const updatedData = data.filter(
-          (item) => item.id !== currentCharacter.id
-        );
-        setData(updatedData);
-        setCurrentCharacter(null);
-        alert("Character deleted successfully");
-      } catch (error) {
-        console.error("Error deleting character:", error);
-        alert("Failed to delete character");
-      }
-    }
-  };
-
-  const handleEditToggle = () => {
-    setIsEditMode(!isEditMode);
-    if (!isEditMode) {
-      markAsChanged();
-    }
-  };
-
   const handleBackPress = () => {
     if (isDataChanged) {
       Alert.alert("Unsaved changes", "Are you sure you don't want to save?", [
@@ -235,73 +245,16 @@ export default function CharacterSheet() {
     }
   };
 
-  const renderCompetenciaItem = ({
-    item,
-    index,
-  }: {
-    item: Competencia;
-    index: number;
-  }) => (
-    <View style={styles.competencia}>
-      <Input
-        value={item.title}
-        onChangeText={(text) => handleCompetenciaChange(index, "title", text)}
-        placeholder="Competencia"
-        editable={isEditMode}
-      />
-      <Input
-        value={item.value}
-        onChangeText={(text) => handleCompetenciaChange(index, "value", text)}
-        placeholder="Valor"
-        editable={isEditMode}
-      />
-      {isEditMode && (
-        <Button
-          title="Eliminar campo"
-          onPress={() => handleRemoveCompetencia(index)}
-          color="red"
-        />
-      )}
-    </View>
-  );
-
-  const renderCharacteristicaItem = ({
-    item,
-    index,
-  }: {
-    item: Characteristicas;
-    index: number;
-  }) => (
-    <View style={styles.characteristicaCard}>
-      <CharacteristicaCard key={index} {...item} />
-      {isEditMode && (
-        <Button
-          title="Eliminar característica"
-          onPress={() => handleRemoveCharacteristica(index)}
-          color="red"
-        />
-      )}
-    </View>
-  );
-
   return (
     <ContainerUI
-      header={{
-        title: "Ficha de Personaje",
-        leftAction: handleBackPress,
-        rightAction: handleEditToggle,
-        rightActionTitle: isEditMode ? "Guardar" : "Editar",
-        rightActionHandler: isEditMode ? handleSave : handleEditToggle,
-      }}
+      header={
+        <CustomHeader title="Crea tu ficha" onBackPress={handleBackPress} />
+      }
       contentStyle={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View>
-          <Typography
-            size="h4"
-            text="Datos generales"
-            style={styles.sectionTitle}
-          />
+          <Typography size="h4" text="Datos generales" />
           <View style={GlobalSheet.card}>
             <Typography size="h5" text="Nombre" />
             <Input
@@ -311,64 +264,28 @@ export default function CharacterSheet() {
                 markAsChanged();
               }}
               placeholder="Rellenar"
-              editable={isEditMode}
             />
-            <View style={styles.imageSection}>
-              {imageUri ? (
-                <Image source={{ uri: imageUri }} style={styles.image} />
-              ) : (
-                <Button title="¡Súbenos tu aspecto!" onPress={pickImage} />
-              )}
-              {imageUri && (
-                <>
-                  <Button
-                    title="Editar image"
-                    onPress={pickImage}
-                    color="blue"
-                  />
-                  <Button
-                    title={deletingImage ? "Deleting..." : "Delete Image"}
-                    onPress={deleteImage}
-                    color="red"
-                    disabled={deletingImage}
-                  />
-                </>
-              )}
-            </View>
-            <Typography size="h6" text="Competencias" />
-            <FlatList
-              data={competencias}
-              renderItem={renderCompetenciaItem}
-              keyExtractor={(_, index) => index.toString()}
-              horizontal
+            <ImageSection
+              imageUri={imageUri}
+              pickImage={pickImage}
+              deleteImage={deleteImage}
+              deletingImage={deletingImage}
             />
-            {isEditMode && (
-              <Button
-                title="Añadir Competencia"
-                onPress={handleAddCompetencia}
-                color="blue"
-              />
-            )}
+
+            <Competencias
+              competencias={competencias}
+              handleCompetenciaChange={handleCompetenciaChange}
+              handleRemoveCompetencia={handleRemoveCompetencia}
+              handleAddCompetencia={handleAddCompetencia}
+            />
           </View>
-          <Typography
-            size="h4"
-            text="Características"
-            style={styles.sectionTitle}
-          />
+
           <View style={GlobalSheet.card}>
-            <FlatList
-              data={characteristicas}
-              renderItem={renderCharacteristicaItem}
-              keyExtractor={(_, index) => index.toString()}
-              horizontal
+            <CharacteristicasList
+              characteristicas={characteristicas}
+              handleRemoveCharacteristica={handleRemoveCharacteristica}
+              handleAddCharacteristica={handleAddCharacteristica}
             />
-            {isEditMode && (
-              <Button
-                title="Añadir Característica"
-                onPress={handleAddCharacteristica}
-                color="blue"
-              />
-            )}
           </View>
         </View>
         <AddCharacteristicaModal
@@ -377,15 +294,10 @@ export default function CharacterSheet() {
           onSave={handleSaveCharacteristica}
         />
       </ScrollView>
-      {isEditMode && (
-        <View style={styles.footer}>
-          <Button
-            title="Eliminar Personaje"
-            onPress={handleDelete}
-            color="red"
-          />
-        </View>
-      )}
+      <View style={styles.footer}>
+        <Button title="Eliminar Personaje" onPress={handleDelete} />
+        <Button title="Guardar Personaje" onPress={handleSave} />
+      </View>
     </ContainerUI>
   );
 }
@@ -398,28 +310,29 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
   },
-  sectionTitle: {
-    marginBottom: 10,
-  },
-  competencia: {
-    marginBottom: 20,
-  },
-  imageSection: {
-    marginTop: 10,
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  image: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-  },
   footer: {
     marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  characteristicaCard: {
-    marginBottom: 20,
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  backButton: {
+    padding: 10,
+  },
+  backIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
+  },
+  titleContainer: {
+    left: 80,
+    flex: 1,
+    alignItems: "center",
   },
 });

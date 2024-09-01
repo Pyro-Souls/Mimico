@@ -6,6 +6,7 @@ export interface Competencia {
 export interface Characteristicas {
   title: string;
   type?: "number" | "text";
+  description?: string;
 }
 
 export interface CharacterData {

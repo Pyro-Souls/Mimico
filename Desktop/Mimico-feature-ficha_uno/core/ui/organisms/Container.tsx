@@ -63,37 +63,21 @@ export const ContainerUI = ({
   mode,
   module,
   withCog,
-  header,
+  header, // этот тип нужно изменить
   contentStyle,
 }: {
   mode?: TMode;
   module?: string;
   withCog?: boolean;
   children: ReactNode;
-  header?: {
-    title: string;
-    leftAction: () => void;
-    rightAction: () => void;
-    rightActionTitle: string;
-    rightActionHandler: () => void;
-  };
+  header?: React.ReactNode;
   contentStyle?: ViewStyle;
 }) => {
   const ModeComponent = MODE_OBJECT[mode as TMode];
 
   return (
     <SafeAreaView style={GlobalSheet.container}>
-      {header && (
-        <View style={GlobalSheet.header}>
-          <TouchableOpacity onPress={header.leftAction}>
-            <Typography size="h4" text="Back" />
-          </TouchableOpacity>
-          <Typography size="h4" text={header.title} />
-          <TouchableOpacity onPress={header.rightActionHandler}>
-            <Typography size="h4" text={header.rightActionTitle} />
-          </TouchableOpacity>
-        </View>
-      )}
+      {header && <View style={GlobalSheet.header}>{header}</View>}
       {mode && (
         <View style={GlobalSheet.header}>
           <ModeComponent module={module ?? ""} withCog={withCog} />

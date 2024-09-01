@@ -13,20 +13,7 @@ import {
   Checkbox,
 } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms/Container";
-
-type CharacterCardProps = {
-  characterData: CharacterData;
-  onPress: () => void;
-};
-
-const CharacterCard: React.FC<CharacterCardProps> = ({
-  characterData,
-  onPress,
-}) => (
-  <Pressable style={GlobalSheet.card} onPress={onPress}>
-    <Typography size="h5" text={characterData.nombre || "Unnamed Character"} />
-  </Pressable>
-);
+import CharacterCard from "../../../components/characteristicaCard";
 
 type AddNewCardProps = {
   onPress: () => void;
@@ -64,6 +51,7 @@ const Tab: React.FC = () => {
         nombre: "Nombre",
         competencias: [],
         imageUri: "",
+        characteristicas: [],
       };
       try {
         await addCharacter(user.uid, newCharacter);
@@ -79,10 +67,17 @@ const Tab: React.FC = () => {
 
   return (
     <ContainerUI>
+      <View>
+        <Typography
+          size="sm"
+          text={`Current user logged in: ${user.username}`}
+        />
+        <Typography size="sm" text={`Current mimicoins: ${user.mimicoins}`} />
+      </View>
       <FlatList
         data={[...data, { id: "add" }]}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           if (item.id === "add") {
             return <AddNewCard onPress={handleAddNewCard} />;
           } else {
@@ -90,6 +85,7 @@ const Tab: React.FC = () => {
             return (
               <CharacterCard
                 characterData={character}
+                index={index}
                 onPress={() => {
                   setCurrentCharacter(character);
                   router.push("home/(tabs)/ficha");
@@ -101,20 +97,11 @@ const Tab: React.FC = () => {
         contentContainerStyle={GlobalSheet.list}
         ListHeaderComponent={() => (
           <View>
-            <Typography size="h4" text={`Tus fichas (${data.length})`} />
+            <Typography size="h4" text={`Tus fichas (${data.length}/3)`} />
           </View>
         )}
         ListFooterComponent={() => (
           <View>
-            <Typography
-              size="sm"
-              text={`Current user logged in: ${user.email} ${user.username}`}
-            />
-            <Typography
-              size="sm"
-              text={`Current mimicoins: ${user.mimicoins}`}
-            />
-
             <Button title="Button Test" onPress={() => {}} />
             <Button title="Button Test" variant="outline" onPress={() => {}} />
             <Button title="Button Test" variant="text" onPress={() => {}} />
