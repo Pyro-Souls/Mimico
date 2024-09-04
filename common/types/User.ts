@@ -6,4 +6,5 @@ export type userData = {
     lastName: string | null;
     date: Date | null;
     profileImageUrl: string | null;
+    bannerImageUrl: string | null;
 };

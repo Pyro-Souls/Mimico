@@ -1,11 +1,13 @@
 import { TThemeColor } from "../theme";
 
+
 interface ITypographyLabel {
   size: TSize;
   isText: Boolean;
   align?: TAligns;
   color?: TThemeColor;
   fontWeight: IBoldTypes;
+  
 }
 
 export interface ITypography {

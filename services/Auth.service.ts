@@ -104,7 +104,8 @@ export const logInWithGoogle = async () => {
           name: user.displayName,
           lastName: null,
           date: new Date(),
-          profileImage:"../assets/profile_default.png",
+          profileImageUrl:"../assets/profile_default.png",
+          bannerImageUrl: null,
         };
         console.log(newUser);
 

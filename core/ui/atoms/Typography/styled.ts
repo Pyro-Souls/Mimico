@@ -7,4 +7,5 @@ export const TypographyLabel = styled.Text<ITypographyLabel>`
   font-weight: ${({ fontWeight }) => fontWeight};
   color: ${({ theme, color }) => `${theme?.colors?.color[color]}`};
   font-family: ${({ isText }) => (isText ? "OutfitRegular" : "CarterOne")};
+  
 `;

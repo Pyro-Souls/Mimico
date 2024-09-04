@@ -8,10 +8,12 @@ import { useFonts, CarterOne_400Regular } from '@expo-google-fonts/carter-one';
 import * as ImagePicker from 'expo-image-picker';
 import { logout } from '../../../services/Auth.service';
 import useStore from '../../../providers/store';
+import { Ionicons } from '@expo/vector-icons'; 
 
 const ProfileScreen: React.FC = () => {
   const [newUsername, setNewUsername] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [fontsLoaded] = useFonts({ CarterOne_400Regular });
   const router = useRouter();
   const { user, setUser, updateUsername, updateProfileImage, clearUser } = useStore();
@@ -48,7 +50,7 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
-  const pickImage = async () => {
+  const pickImage = async (type: 'profile' | 'banner') => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       Alert.alert('Permission to access camera roll is required!');
@@ -67,9 +69,15 @@ const ProfileScreen: React.FC = () => {
       try {
         const downloadURL = await uploadProfileImage(user.uid!, uri);
         console.log('Profile image URL:', downloadURL);
-        const updatedUser = { ...user, profileImageUrl: downloadURL }; // Update with correct field name
+        const updatedUser = type === 'profile'
+          ? { ...user, profileImageUrl: downloadURL }
+          : { ...user, bannerImageUrl: downloadURL };
         await updateUser(user.uid!, updatedUser);
-        updateProfileImage(downloadURL);
+        if (type === 'profile') {
+          updateProfileImage(downloadURL);
+        } else {
+          // Implementa updateBannerImage en tu store si es necesario
+        }
       } catch (error) {
         console.error('Error uploading image:', error);
         Alert.alert('Error', 'Hubo un error al subir la imagen.');
@@ -92,24 +100,77 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <ContainerUI>
-      <ScrollView>
-        <View style={{ padding: 16 }}>
-          <Typography size="h4" text="Profile Screen" />
-          <Typography size="sm" text={`Current username: ${user.username || 'N/A'}`} />
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ padding: 16, alignItems: 'center' }}>
 
-          <TouchableOpacity onPress={pickImage}>
+          {/* Imagen de Banner */}
+          {user.bannerImageUrl && (
+            <Image
+              source={{ uri: user.bannerImageUrl }}
+              style={{ width: '100%', height: 150 }}
+              onError={() => console.error('Error loading banner image')}
+            />
+          )}
+
+          {/* Imagen de Perfil */}
+          <TouchableOpacity onPress={() => editMode && pickImage('profile')}>
             <Image
               source={user.profileImageUrl ? { uri: user.profileImageUrl } : require('../../../assets/profile_default.png')}
-              style={{ width: 300, height: 300, borderRadius: 150, alignSelf: 'center' }}
-              onError={() => console.error('Error loading profile image')} // Handle image load error
+              style={{ width: 300, height: 300, borderRadius: 150, marginTop: -75 }} // Superponer la imagen de perfil sobre el banner
+              onError={() => console.error('Error loading profile image')}
             />
           </TouchableOpacity>
 
-          <Button title="Change Username" onPress={() => setShowModal(true)} />
-          <Button title="Logout" onPress={handleLogout} />
+          {/* Botón de Editar Perfil */}
+          <View style={{ marginTop: 20, alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => setEditMode(!editMode)}>
+              <Typography size="h5" text={editMode ? "Cancelar" : "Editar Perfil"} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Contenedor para el nombre de usuario y el botón de editar */}
+          <View style={{ marginTop: 16, flexDirection: 'row', alignItems: 'center' }}>
+            <Typography size="h2" text={user.username || 'N/A'} />
+            {editMode && (
+              <TouchableOpacity onPress={() => setShowModal(true)} style={{ marginLeft: 8 }}>
+                <Ionicons name="create-outline" size={24} color="black" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* ID de Usuario */}
+          <View style={{ marginTop: 8 }}>
+            <Typography size="sm" text={`UserID: ${user.uid || 'N/A'}`} />
+          </View>
+
+          {/* Contenedor para el banner y el botón de editar */}
+          <View style={{ marginTop: 32, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1 }}>
+              {user.bannerImageUrl && (
+                <TouchableOpacity onPress={() => editMode && pickImage('banner')}>
+                  <Image
+                    source={{ uri: user.bannerImageUrl }}
+                    style={{ width: '100%', height: 150 }}
+                    onError={() => console.error('Error loading banner image')}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+            {editMode && (
+              <TouchableOpacity onPress={() => pickImage('banner')} style={{ marginLeft: 8 }}>
+                <Ionicons name="image-outline" size={24} color="black" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Botón de Cerrar Sesión */}
+          <View style={{ marginTop: 32 }}>
+            <Button title="Cerrar Sesión" onPress={handleLogout} />
+          </View>
         </View>
       </ScrollView>
 
+      {/* Modal para cambiar el nombre de usuario */}
       <Modal
         transparent
         animationType="slide"
@@ -118,14 +179,14 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ width: '80%', padding: 20, backgroundColor: 'white', borderRadius: 10 }}>
-            <Typography size="h5" text="Change Username" />
+            <Typography size="h5" text="Cambiar Nombre de Usuario" />
             <Input
-              placeholder="Enter new username"
+              placeholder="Introduce un nuevo nombre de usuario"
               value={newUsername}
               onChangeText={setNewUsername}
             />
-            <Button title="Update" onPress={handleUpdateUsername} />
-            <Button title="Cancel" onPress={() => setShowModal(false)} />
+            <Button title="Actualizar" onPress={handleUpdateUsername} />
+            <Button title="Cancelar" onPress={() => setShowModal(false)} />
           </View>
         </View>
       </Modal>

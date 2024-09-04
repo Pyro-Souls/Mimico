@@ -6,6 +6,7 @@ type State = {
     setUser: (user: userData) => void;
     updateUsername: (username: string) => void;
     updateProfileImage: (profileImage: string) => void;
+    updateBannerImage: (bannerImage: string) => void;
     clearUser: () => void;
 };
 
@@ -18,6 +19,7 @@ const useStore = create<State>((set) => ({
         lastName: null,
         date: null,
         profileImageUrl: null,
+        bannerImageUrl: null,
     },
     setUser: (user) => set({ user }),
 
@@ -34,6 +36,12 @@ const useStore = create<State>((set) => ({
             profileImage,
         },
     })),
+    updateBannerImage: (bannerImage) => set((state) => ({  
+        user: {
+            ...state.user,
+            bannerImageUrl: bannerImage,
+        },
+    })),
 
     clearUser: () => set({
         user: {
@@ -44,6 +52,7 @@ const useStore = create<State>((set) => ({
             lastName: null,
             date: null,
             profileImageUrl: null,
+            bannerImageUrl: null,
         },
     }),
 }));
