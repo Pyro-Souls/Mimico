@@ -5,10 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ImageBackground,
+  Dimensions,
 } from "react-native";
 import { Button, Typography } from "../core/ui/atoms";
 import { Characteristicas } from "../common/types/CharacterData";
-import CharacteristicaCard from "./characteristicaCard";
+import CharacteristicaSection from "./charSection";
 
 interface CharacteristicasProps {
   characteristicas: Characteristicas[];
@@ -35,22 +37,48 @@ const CharacteristicasList: React.FC<CharacteristicasProps> = ({
     index: number;
   }) => (
     <View style={styles.characteristicaCard}>
-      <CharacteristicaCard
-        characterData={item}
-        index={index}
-        onPress={() => {
-          console.log(`Pressed on ${item.title}`);
-        }}
-      />
-      <TouchableOpacity
-        style={styles.deleteIcon}
-        onPress={() => handleRemoveCharacteristica(index)}
-      >
-        <Image
-          source={require("../assets/icons/cog-icon-black.png")}
-          style={styles.deleteImage}
-        />
-      </TouchableOpacity>
+      <View style={styles.characteristicaRow}>
+        {/* Render two ImageBackground in one row */}
+        <View style={styles.imageContainer}>
+          <ImageBackground
+            source={require("../assets/cuadrado.png")}
+            style={styles.backgroundImage}
+          >
+            <CharacteristicaSection characteristicas={[item]} />
+            <TouchableOpacity
+              style={styles.deleteIcon}
+              onPress={() => handleRemoveCharacteristica(index)}
+            >
+              <Image
+                source={require("../assets/icons/cog-icon-black.png")}
+                style={styles.deleteImage}
+              />
+            </TouchableOpacity>
+          </ImageBackground>
+        </View>
+
+        {index + 1 < characteristicas.length && (
+          <View style={styles.imageContainer}>
+            <ImageBackground
+              source={require("../assets/cuadrado.png")}
+              style={styles.backgroundImage}
+            >
+              <CharacteristicaSection
+                characteristicas={[characteristicas[index + 1]]}
+              />
+              <TouchableOpacity
+                style={styles.deleteIcon}
+                onPress={() => handleRemoveCharacteristica(index + 1)}
+              >
+                <Image
+                  source={require("../assets/icons/cog-icon-black.png")}
+                  style={styles.deleteImage}
+                />
+              </TouchableOpacity>
+            </ImageBackground>
+          </View>
+        )}
+      </View>
     </View>
   );
 
@@ -79,26 +107,47 @@ const CharacteristicasList: React.FC<CharacteristicasProps> = ({
             data={characteristicas}
             renderItem={renderCharacteristicaItem}
             keyExtractor={(_, index) => index.toString()}
-            horizontal
+            numColumns={2}
           />
-          <Button title="Agregar campo" onPress={handleAddCharacteristica} />
+          <TouchableOpacity
+            onPress={handleAddCharacteristica}
+            style={styles.backgroundImage}
+          >
+            <Image source={require("../assets/cuadrado-plus.png")}></Image>
+          </TouchableOpacity>
         </>
       )}
     </View>
   );
 };
 
+const { width } = Dimensions.get("window");
+const imageWidth = (width - 100) / 2;
+
 const styles = StyleSheet.create({
   characteristicaCard: {
-    marginBottom: 20,
+    marginBottom: 25,
+  },
+  characteristicaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  imageContainer: {
+    width: imageWidth,
+    marginRight: 15,
+  },
+  backgroundImage: {
+    width: "100%",
+    height: 250,
+    justifyContent: "center",
     position: "relative",
   },
   deleteIcon: {
     position: "absolute",
     top: 10,
     right: 10,
-    width: 24,
-    height: 24,
+    width: 30,
+    height: 30,
     justifyContent: "center",
     alignItems: "center",
   },

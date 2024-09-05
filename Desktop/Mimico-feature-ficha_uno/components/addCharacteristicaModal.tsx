@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  ImageBackground,
   Text,
 } from "react-native";
 import { Button, Typography } from "../core/ui/atoms";
@@ -34,17 +35,24 @@ const AddCharacteristicaModal = ({
           <Typography size="h5" text="Select Type" />
           <Typography size="h6" text="Preview" />
 
-          {/* Card container with ellipse inside */}
           <TouchableOpacity style={styles.cardContainer} onPress={handleSave}>
-            <View style={styles.ellipseContainer}>
-              <TextInput
-                style={styles.input}
-                value={value}
-                onChangeText={setValue}
-                placeholder={type === "number" ? "Enter number" : "Enter text"}
-                keyboardType={type === "number" ? "numeric" : "default"}
-              />
-            </View>
+            <ImageBackground
+              source={require("../assets/cuadrado.png")}
+              style={styles.backgroundImage}
+              imageStyle={styles.imageStyle}
+            >
+              <View>
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  onChangeText={setValue}
+                  placeholder={
+                    type === "number" ? "Enter number" : "Enter text"
+                  }
+                  keyboardType={type === "number" ? "numeric" : "default"}
+                />
+              </View>
+            </ImageBackground>
           </TouchableOpacity>
 
           <Button
@@ -86,33 +94,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: 10,
   },
-  number: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  title: {
-    fontSize: 18,
-    marginTop: 10,
-    textAlign: "center",
-  },
-  ellipseContainer: {
-    marginTop: 15,
-    width: "100%",
-    height: 80,
-    backgroundColor: "#e0e0e0",
+  backgroundImage: {
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#000",
-    paddingHorizontal: 5,
+    width: "100%",
+    height: "100%",
+  },
+  imageStyle: {
     borderRadius: 30,
-    transform: [{ skewX: "10deg" }],
+    opacity: 0.5,
   },
   input: {
     width: "90%",
     textAlign: "center",
     fontSize: 16,
     height: "100%",
+    color: "#000",
   },
 });
 

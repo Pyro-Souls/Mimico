@@ -1,8 +1,15 @@
 import React from "react";
-import { View, Image, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Image,
+  Pressable,
+  StyleSheet,
+  ImageBackground,
+} from "react-native";
 import { Typography } from "../core/ui/atoms";
 import { CharacterData } from "../common/types/CharacterData";
 import { GlobalSheet } from "../core/ui/GlobalSheet";
+import CharacteristicaSection from "./charSection";
 
 type CharacterCardProps = {
   characterData: CharacterData;
@@ -22,10 +29,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
       <View style={styles.cardContent}>
         {isImageRight ? (
           <>
-            <Typography
-              size="h5"
-              text={characterData.nombre || "Unnamed Character"}
-            />
+            <Typography size="h5" text={characterData.nombre} />
             {characterData.imageUri ? (
               <Image
                 source={{ uri: characterData.imageUri }}
@@ -45,10 +49,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
             ) : (
               <View style={styles.placeholderImage} />
             )}
-            <Typography
-              size="h5"
-              text={characterData.nombre || "Unnamed Character"}
-            />
+            <Typography size="h5" text={characterData.nombre} />
           </>
         )}
       </View>
@@ -80,6 +81,10 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: "#ccc",
     marginRight: 20,
+  },
+  backgroundImage: {
+    width: "100%",
+    height: "100%",
   },
 });
 

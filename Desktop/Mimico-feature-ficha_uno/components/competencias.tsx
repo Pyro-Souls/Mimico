@@ -6,28 +6,35 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { Input, Button, Typography } from "../core/ui/atoms";
+import { Button, Typography } from "../core/ui/atoms";
 import { Competencia } from "../common/types/CharacterData";
 import AddCompetenciaModal from "./addCompetenciaModal";
 
-interface CompetenciasProps {
-  competencias: Competencia[];
-  handleCompetenciaChange: (index: number, key: "title", value: string) => void;
-  handleRemoveCompetencia: (index: number) => void;
-  handleAddCompetencia: (value: string) => void;
+interface Competencia {
+  title: string;
 }
 
-const Competencias: React.FC<CompetenciasProps> = ({
-  competencias,
-  handleCompetenciaChange,
-  handleRemoveCompetencia,
-  handleAddCompetencia,
-}) => {
+const Competencias: React.FC = () => {
+  const [competencias, setCompetencias] = useState<Competencia[]>([]);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  const handleAddCompetencia = (value: string) => {
+    // Добавляем новую competencia в список
+    setCompetencias((prevCompetencias) => [
+      ...prevCompetencias,
+      { title: value },
+    ]);
+  };
+
+  const handleRemoveCompetencia = (index: number) => {
+    setCompetencias((prevCompetencias) =>
+      prevCompetencias.filter((_, i) => i !== index)
+    );
   };
 
   const renderCompetenciaItem = ({
@@ -39,12 +46,7 @@ const Competencias: React.FC<CompetenciasProps> = ({
   }) => (
     <View style={styles.competencia}>
       <View style={styles.inputContainer}>
-        <Input
-          value={item.title}
-          onChangeText={(text) => handleCompetenciaChange(index, "title", text)}
-          placeholder="Competencia"
-          style={styles.input}
-        />
+        <Typography size="h6" text={item.title} style={styles.input} />
         <TouchableOpacity
           onPress={() => handleRemoveCompetencia(index)}
           style={styles.deleteButton}
@@ -78,6 +80,7 @@ const Competencias: React.FC<CompetenciasProps> = ({
           />
         </View>
       )}
+
       <AddCompetenciaModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}

@@ -195,9 +195,9 @@ export default function CharacterSheet() {
 
   const handleSaveCharacteristica = (
     type: "number" | "text",
-    title: string
+    value: string
   ) => {
-    const newCharacteristica: Characteristicas = { title, type };
+    const newCharacteristica: Characteristicas = { title: value, type };
     setCharacteristicas([...characteristicas, newCharacteristica]);
     setIsModalVisible(false);
     markAsChanged();

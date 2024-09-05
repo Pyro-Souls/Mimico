@@ -15,10 +15,9 @@ const AddCompetenciaModal = ({
 
   const handleSave = () => {
     if (value.trim()) {
-      // Prevent saving empty values
       onSave(value);
-      setValue(""); // Clear input field
-      onClose(); // Close modal
+      setValue("");
+      onClose();
     }
   };
 
