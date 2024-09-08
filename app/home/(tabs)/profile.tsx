@@ -20,21 +20,21 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (user.uid) {
+      if (user?.uid) {
+        try {
           const data = await fetchProfileData(user.uid);
           console.log('Fetched profile data:', data);
           setUser(data);
+        } catch (error) {
+          console.error('Error fetching profile data:', error);
         }
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
       }
     };
     fetchData();
-  }, [user.uid]);
+  }, [user?.uid]);
 
   const handleUpdateUsername = async () => {
-    if (newUsername.trim() && user.uid) {
+    if (newUsername.trim() && user?.uid) {
       try {
         const updatedUser = { ...user, username: newUsername };
         await updateUser(user.uid, updatedUser);
@@ -67,16 +67,13 @@ const ProfileScreen: React.FC = () => {
     if (!result.canceled) {
       const { uri } = result.assets[0];
       try {
-        const downloadURL = await uploadProfileImage(user.uid!, uri);
-        console.log('Profile image URL:', downloadURL);
+        const downloadURL = await uploadProfileImage(user?.uid!, uri);
         const updatedUser = type === 'profile'
           ? { ...user, profileImageUrl: downloadURL }
           : { ...user, bannerImageUrl: downloadURL };
-        await updateUser(user.uid!, updatedUser);
+        await updateUser(user?.uid!, updatedUser);
         if (type === 'profile') {
           updateProfileImage(downloadURL);
-        } else {
-          // Implementa updateBannerImage en tu store si es necesario
         }
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -104,7 +101,7 @@ const ProfileScreen: React.FC = () => {
         <View style={{ padding: 16, alignItems: 'center' }}>
 
           {/* Imagen de Banner */}
-          {user.bannerImageUrl && (
+          {user?.bannerImageUrl && (
             <Image
               source={{ uri: user.bannerImageUrl }}
               style={{ width: '100%', height: 150 }}
@@ -115,8 +112,8 @@ const ProfileScreen: React.FC = () => {
           {/* Imagen de Perfil */}
           <TouchableOpacity onPress={() => editMode && pickImage('profile')}>
             <Image
-              source={user.profileImageUrl ? { uri: user.profileImageUrl } : require('../../../assets/profile_default.png')}
-              style={{ width: 300, height: 300, borderRadius: 150, marginTop: -75 }} // Superponer la imagen de perfil sobre el banner
+              source={user?.profileImageUrl ? { uri: user.profileImageUrl } : require('../../../assets/profile_default.png')}
+              style={{ width: 300, height: 300, borderRadius: 150, marginTop: -75 }} 
               onError={() => console.error('Error loading profile image')}
             />
           </TouchableOpacity>
@@ -130,7 +127,7 @@ const ProfileScreen: React.FC = () => {
 
           {/* Contenedor para el nombre de usuario y el botón de editar */}
           <View style={{ marginTop: 16, flexDirection: 'row', alignItems: 'center' }}>
-            <Typography size="h2" text={user.username || 'N/A'} />
+            <Typography size="h2" text={user?.username || 'N/A'} />
             {editMode && (
               <TouchableOpacity onPress={() => setShowModal(true)} style={{ marginLeft: 8 }}>
                 <Ionicons name="create-outline" size={24} color="black" />
@@ -140,13 +137,13 @@ const ProfileScreen: React.FC = () => {
 
           {/* ID de Usuario */}
           <View style={{ marginTop: 8 }}>
-            <Typography size="sm" text={`UserID: ${user.uid || 'N/A'}`} />
+            <Typography size="sm" text={`UserID: ${user?.uid || 'N/A'}`} />
           </View>
 
           {/* Contenedor para el banner y el botón de editar */}
           <View style={{ marginTop: 32, flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flex: 1 }}>
-              {user.bannerImageUrl && (
+              {user?.bannerImageUrl && (
                 <TouchableOpacity onPress={() => editMode && pickImage('banner')}>
                   <Image
                     source={{ uri: user.bannerImageUrl }}

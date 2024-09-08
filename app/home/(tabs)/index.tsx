@@ -24,7 +24,7 @@ export default function Tab() {
           <Typography size="h4" text="Tab [Home]" />
           <Typography
             size="sm"
-            text={`Current user logged in: ${user.email}${user.username}`}
+            text={`Current user logged in: ${user?.email || 'No email'}${user?.username || 'No username'}`}
           />
 
           {/* BUTTONS */}
@@ -75,3 +75,4 @@ export default function Tab() {
     </ContainerUI>
   );
 }
+
