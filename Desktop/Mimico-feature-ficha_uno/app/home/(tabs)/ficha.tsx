@@ -45,12 +45,22 @@ const CustomHeader = ({
   );
 };
 
+type Competencia = {
+  title: string;
+};
+export interface Characteristica {
+  id: string;
+  number1: string;
+  name: string;
+  number2: string;
+}
+
 export default function CharacterSheet() {
   const { currentCharacter, data, setData, setCurrentCharacter, user } =
     useStore();
   const [nombre, setNombre] = useState<string>("");
   const [competencias, setCompetencias] = useState<Competencia[]>([]);
-  const [characteristicas, setCharacteristicas] = useState<Characteristicas[]>(
+  const [characteristicas, setCharacteristicas] = useState<Characteristica[]>(
     []
   );
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -194,7 +204,7 @@ export default function CharacterSheet() {
     setIsModalVisible(true);
   };
 
-  const handleSaveCharacteristica = (characteristica: Characteristicas) => {
+  const handleSaveCharacteristica = (characteristica: Characteristica) => {
     setCharacteristicas([...characteristicas, characteristica]);
     setIsModalVisible(false);
     markAsChanged();
@@ -342,6 +352,7 @@ export default function CharacterSheet() {
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
           onSave={handleSaveCharacteristica}
+          initialCharacteristica={null}
         />
       </ScrollView>
       <View style={GlobalSheet.card}>
