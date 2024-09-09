@@ -13,7 +13,7 @@ import {
   Checkbox,
 } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms/Container";
-import CharacterCard from "../../../components/characteristicaCard";
+import CharacterCard from "../../../components/indexCharachter";
 
 type AddNewCardProps = {
   onPress: () => void;
@@ -29,7 +29,7 @@ const Tab: React.FC = () => {
   const { data, setCurrentCharacter, loadUserCharacters, user } = useStore();
 
   useEffect(() => {
-    if (user.uid) {
+    if (user?.uid) {
       loadUserCharacters();
     }
   }, [user]);
@@ -54,7 +54,7 @@ const Tab: React.FC = () => {
         characteristicas: [],
       };
       try {
-        await addCharacter(user.uid, newCharacter);
+        await addCharacter(user?.uid, newCharacter);
         loadUserCharacters();
         setCurrentCharacter(newCharacter);
         router.push("home/(tabs)/ficha");
@@ -70,9 +70,12 @@ const Tab: React.FC = () => {
       <View>
         <Typography
           size="sm"
-          text={`Current user logged in: ${user.username}`}
+          text={`Current user logged in: ${user?.username || "Guest"}`}
         />
-        <Typography size="sm" text={`Current mimicoins: ${user.mimicoins}`} />
+        <Typography
+          size="sm"
+          text={`Current mimicoins: ${user?.mimicoins || 0}`}
+        />
       </View>
       <FlatList
         data={[...data, { id: "add" }]}

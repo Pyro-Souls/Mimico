@@ -121,3 +121,21 @@ export const logout = async () => {
   await signOut(getAuth(firebaseApp));
   console.log("User logged out");
 };
+
+export const resetPassword = async (email: string) => {
+  const auth = getAuth(firebaseApp);
+  try {
+    await sendPasswordResetEmail(auth, email);
+    console.log("Password reset email sent successfully.");
+    return {
+      success: true,
+      message: "Password reset email sent successfully.",
+    };
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    if (error instanceof Error) {
+      return { success: false, message: error.message };
+    }
+    return { success: false, message: "An unexpected error occurred" };
+  }
+};

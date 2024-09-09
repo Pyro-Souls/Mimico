@@ -7,11 +7,11 @@ import {
   Image,
 } from "react-native";
 import { Button, Typography } from "../core/ui/atoms";
-import { Competencia } from "../common/types/CharacterData";
 import AddCompetenciaModal from "./addCompetenciaModal";
 
 interface Competencia {
   title: string;
+  size: string; // Добавляем поле size
 }
 
 const Competencias: React.FC = () => {
@@ -23,11 +23,13 @@ const Competencias: React.FC = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const handleAddCompetencia = (value: string) => {
-    // Добавляем новую competencia в список
+  const handleAddCompetencia = (competencia: {
+    text: string;
+    size: string;
+  }) => {
     setCompetencias((prevCompetencias) => [
       ...prevCompetencias,
-      { title: value },
+      { title: competencia.text, size: competencia.size },
     ]);
   };
 
@@ -46,7 +48,13 @@ const Competencias: React.FC = () => {
   }) => (
     <View style={styles.competencia}>
       <View style={styles.inputContainer}>
-        <Typography size="h6" text={item.title} style={styles.input} />
+        <View style={styles.textContainer}>
+          <Typography
+            size="h6"
+            text={`${item.title} (${item.size})`}
+            style={styles.input}
+          />
+        </View>
         <TouchableOpacity
           onPress={() => handleRemoveCompetencia(index)}
           style={styles.deleteButton}
@@ -84,8 +92,8 @@ const Competencias: React.FC = () => {
       <AddCompetenciaModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        onSave={(value) => {
-          handleAddCompetencia(value);
+        onSave={(competencia) => {
+          handleAddCompetencia(competencia);
           setIsModalVisible(false);
         }}
       />
@@ -105,34 +113,41 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
-    transform: [{ rotate: "0deg" }],
-    marginLeft: 80,
+    marginLeft: 10,
   },
   iconCollapsed: {
     transform: [{ rotate: "180deg" }],
   },
   competencia: {
     marginBottom: 20,
+    borderBottomColor: "#ddd", // Цвет границы
+    paddingBottom: 2, // Отступ снизу
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    // Отступы по бокам
+  },
+  textContainer: {
+    flex: 1,
+    paddingVertical: 7, // Отступы сверху и снизу
+    borderWidth: 1, // Граница вокруг текста
+    borderColor: "#ddd",
+    borderRadius: 5,
+    backgroundColor: "#fff",
   },
   input: {
-    flex: 1,
-    marginRight: 5,
+    marginRight: 16,
   },
   deleteButton: {
-    position: "absolute",
-    right: 1,
     paddingVertical: 6,
     paddingHorizontal: 6,
     backgroundColor: "#FF6B6B",
     borderRadius: 5,
     minWidth: 50,
     alignItems: "center",
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: "black",
     zIndex: 8,
   },

@@ -122,7 +122,6 @@ export const updateCharacter = async (
     throw error;
   }
 };
-
 // DELETE
 export const removeCharacter = async (userId: string, id: string) => {
   try {

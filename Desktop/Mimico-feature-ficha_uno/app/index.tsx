@@ -7,28 +7,28 @@ import {
   View,
   ActivityIndicator,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
 
-import { logIn, logInWithGoogle } from "../services/Auth.service";
+import {
+  logIn,
+  logInWithGoogle,
+  resetPassword,
+} from "../services/Auth.service";
 import { auth } from "../services/firebase";
-
 import useStore from "../providers/store";
 import { getUserById } from "../services/User.service";
 
+// Existing Login component
 export default function Login() {
-  //const navigation = useNavigation();
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const { setUser } = useStore();
 
   useEffect(() => {
-    //This checks if the user is already logged in
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         console.log("User logged in (AuthState):", user.uid);
@@ -48,8 +48,6 @@ export default function Login() {
       const login = await logIn(email, password);
       if (login) {
         setLoading(false);
-        console.log("User logged in (handleLogin)", login);
-        //setUser(login);
         if (router.canDismiss()) router.dismissAll();
         router.push("home");
       } else {
@@ -62,33 +60,21 @@ export default function Login() {
     }
   };
 
-  // const handleGoogleLogin = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const googlelogin = logInWithGoogle();
-  //     if (googlelogin != undefined) {
-  //       setLoading(false);
-  //       console.log("User logged in with Google", googlelogin);
-  //       //This clears navigation history and pushes to the home screen so you can't go back to the register/login screen
-  //       if (router.canDismiss()) router.dismissAll();
-  //       router.push('home');
-  //     }
-  //     else {
-  //       setLoading(false);
-  //       console.log("Google login failed");
-  //     }
-  //   } catch (error) {
-  //     setLoading(false);
-  //     console.log(error);
-  //   }
-  // }
+  const handleResetPassword = async () => {
+    const result = await resetPassword(email);
+    if (result.success) {
+      Alert.alert("Success", result.message);
+    } else {
+      Alert.alert("Error", result.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text>This is the Login Page</Text>
       <TextInput
         style={styles.input}
-        placeholder="email" //Should be email and username
+        placeholder="email"
         value={email}
         onChangeText={setEmail}
       />
@@ -106,7 +92,7 @@ export default function Login() {
         <>
           <Button title="Login" onPress={handleLogin} />
           <Button title="Register" onPress={() => router.push("register")} />
-          {/* <Button title="Log in with Google" onPress={handleGoogleLogin} /> */}
+          <Button title="Forgot Password?" onPress={handleResetPassword} />
         </>
       )}
     </View>

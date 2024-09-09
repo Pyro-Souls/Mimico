@@ -7,13 +7,14 @@ import {
   Image,
   ImageBackground,
   Dimensions,
+  Modal,
 } from "react-native";
-import { Button, Typography } from "../core/ui/atoms";
-import { Characteristicas } from "../common/types/CharacterData";
-import CharacteristicaSection from "./charSection";
+import { Typography } from "../core/ui/atoms";
+import AddCharacteristicaModal from "./addCharacteristicaModal";
+import { Characteristica } from "../common/types/CharacterData";
 
 interface CharacteristicasProps {
-  characteristicas: Characteristicas[];
+  characteristicas: Characteristica[];
   handleRemoveCharacteristica: (index: number) => void;
   handleAddCharacteristica: () => void;
 }
@@ -21,33 +22,78 @@ interface CharacteristicasProps {
 const CharacteristicasList: React.FC<CharacteristicasProps> = ({
   characteristicas,
   handleRemoveCharacteristica,
-  handleAddCharacteristica,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [characteristicasState, setCharacteristicasState] =
+    useState<Characteristica[]>(characteristicas);
+  const [currentCharacteristica, setCurrentCharacteristica] =
+    useState<Characteristica | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const numColumns = 2;
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  const handleAddCharacteristica = () => {
+    setIsModalVisible(true);
+    setCurrentCharacteristica(null); // Новая характеристика
+  };
+
+  const handleSaveCharacteristica = (newCharacteristica: Characteristica) => {
+    if (editingIndex !== null) {
+      // Редактирование существующей характеристики
+      const updatedCharacteristicas = [...characteristicasState];
+      updatedCharacteristicas[editingIndex] = newCharacteristica;
+      setCharacteristicasState(updatedCharacteristicas);
+      setEditingIndex(null);
+    } else {
+      // Добавление новой характеристики
+      setCharacteristicasState([...characteristicasState, newCharacteristica]);
+    }
+    setIsModalVisible(false);
+  };
+
+  const handleEditCharacteristica = (index: number) => {
+    setCurrentCharacteristica(characteristicasState[index]);
+    setEditingIndex(index);
+    setIsModalVisible(true);
+  };
+
+  const removeCharacteristica = (index: number) => {
+    const updatedCharacteristicas = characteristicasState.filter(
+      (_, i) => i !== index
+    );
+    setCharacteristicasState(updatedCharacteristicas);
   };
 
   const renderCharacteristicaItem = ({
     item,
     index,
   }: {
-    item: Characteristicas;
+    item: Characteristica;
     index: number;
   }) => (
-    <View style={styles.characteristicaCard}>
+    <TouchableOpacity
+      onLongPress={() => handleEditCharacteristica(index)}
+      style={styles.characteristicaCard}
+    >
       <View style={styles.characteristicaRow}>
-        {/* Render two ImageBackground in one row */}
         <View style={styles.imageContainer}>
           <ImageBackground
-            source={require("../assets/cuadrado.png")}
+            source={require("../assets/Marcos/Valor_numérico-4.png")}
             style={styles.backgroundImage}
           >
-            <CharacteristicaSection characteristicas={[item]} />
+            <View style={styles.characteristicaDetails}>
+              <Typography size="h1" text={item.number1} />
+              <Typography size="h6" text={item.number2} />
+              <Typography size="h5" text={item.name} />
+            </View>
+
             <TouchableOpacity
               style={styles.deleteIcon}
-              onPress={() => handleRemoveCharacteristica(index)}
+              onPress={() => removeCharacteristica(index)}
             >
               <Image
                 source={require("../assets/icons/cog-icon-black.png")}
@@ -56,30 +102,8 @@ const CharacteristicasList: React.FC<CharacteristicasProps> = ({
             </TouchableOpacity>
           </ImageBackground>
         </View>
-
-        {index + 1 < characteristicas.length && (
-          <View style={styles.imageContainer}>
-            <ImageBackground
-              source={require("../assets/cuadrado.png")}
-              style={styles.backgroundImage}
-            >
-              <CharacteristicaSection
-                characteristicas={[characteristicas[index + 1]]}
-              />
-              <TouchableOpacity
-                style={styles.deleteIcon}
-                onPress={() => handleRemoveCharacteristica(index + 1)}
-              >
-                <Image
-                  source={require("../assets/icons/cog-icon-black.png")}
-                  style={styles.deleteImage}
-                />
-              </TouchableOpacity>
-            </ImageBackground>
-          </View>
-        )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -101,51 +125,68 @@ const CharacteristicasList: React.FC<CharacteristicasProps> = ({
           </View>
         </TouchableOpacity>
       </View>
+
       {!isCollapsed && (
         <>
           <FlatList
-            data={characteristicas}
+            data={characteristicasState}
             renderItem={renderCharacteristicaItem}
             keyExtractor={(_, index) => index.toString()}
-            numColumns={2}
+            numColumns={numColumns}
+            key={numColumns}
           />
+
           <TouchableOpacity
             onPress={handleAddCharacteristica}
-            style={styles.backgroundImage}
+            style={styles.addButton}
           >
-            <Image source={require("../assets/cuadrado-plus.png")}></Image>
+            <Image source={require("../assets/cuadrado-plus.png")} />
           </TouchableOpacity>
         </>
       )}
+
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <AddCharacteristicaModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          onSave={handleSaveCharacteristica}
+          initialCharacteristica={currentCharacteristica} // Передаем текущую характеристику или null
+        />
+      </Modal>
     </View>
   );
 };
 
 const { width } = Dimensions.get("window");
-const imageWidth = (width - 100) / 2;
+const imageWidth = (width - 80) / 2;
 
 const styles = StyleSheet.create({
   characteristicaCard: {
     marginBottom: 25,
+    alignItems: "center",
   },
   characteristicaRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   imageContainer: {
     width: imageWidth,
-    marginRight: 15,
+    marginHorizontal: 0,
   },
   backgroundImage: {
-    width: "100%",
+    width: "99%",
     height: 250,
     justifyContent: "center",
     position: "relative",
   },
+  characteristicaDetails: {
+    padding: 5,
+    alignItems: "center",
+  },
   deleteIcon: {
     position: "absolute",
-    top: 10,
-    right: 10,
+    top: 20,
+    right: 5,
     width: 30,
     height: 30,
     justifyContent: "center",
@@ -171,6 +212,9 @@ const styles = StyleSheet.create({
     height: 20,
     marginLeft: 10,
     resizeMode: "contain",
+  },
+  addButton: {
+    marginVertical: 20,
   },
 });
 

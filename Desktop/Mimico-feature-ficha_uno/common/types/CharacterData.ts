@@ -1,12 +1,12 @@
 export interface Competencia {
   title: string;
-  value: string;
 }
 
-export interface Characteristicas {
-  title: string;
-  type?: "number" | "text";
-  description?: string;
+export interface Characteristica {
+  id: string;
+  number1: string;
+  name: string;
+  number2: string;
 }
 
 export interface CharacterData {
@@ -15,6 +15,6 @@ export interface CharacterData {
   title: string;
   nombre: string;
   competencias: Competencia[];
-  characteristicas: Characteristicas[];
+  characteristicas: Characteristica[];
   imageUri?: string;
 }

@@ -3,13 +3,12 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  Button,
   Alert,
   TouchableOpacity,
   Image,
 } from "react-native";
 import { GlobalSheet } from "../../../core/ui";
-import { Input, Typography } from "../../../core/ui/atoms";
+import { Input, Typography, Button } from "../../../core/ui/atoms";
 import { ContainerUI } from "../../../core/ui/organisms";
 import useStore from "../../../providers/store";
 import { router } from "expo-router";
@@ -21,10 +20,7 @@ import AddCharacteristicaModal from "../../../components/addCharacteristicaModal
 import ImageSection from "../../../components/image";
 import Competencias from "../../../components/competencias";
 import CharacteristicasList from "../../../components/characteristicas";
-import {
-  Competencia,
-  Characteristicas,
-} from "../../../common/types/CharacterData";
+import AddFieldModal from "../../../components/addField";
 import * as ImagePicker from "expo-image-picker";
 
 const CustomHeader = ({
@@ -62,6 +58,12 @@ export default function CharacterSheet() {
   const [imageUri, setImageUri] = useState<string | undefined>(undefined);
   const [deletingImage, setDeletingImage] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isAddFieldModalVisible, setIsAddFieldModalVisible] =
+    useState<boolean>(false);
+  const [selectedFieldType, setSelectedFieldType] = useState<string | null>(
+    null
+  );
+  const [sections, setSections] = useState<string[]>([]);
 
   useEffect(() => {
     if (currentCharacter) {
@@ -135,7 +137,6 @@ export default function CharacterSheet() {
       );
       setData(updatedData);
       setCurrentCharacter(updatedCharacter);
-
       setIsDataChanged(false);
       setIsEditMode(false);
 
@@ -185,7 +186,7 @@ export default function CharacterSheet() {
   };
 
   const handleAddCompetencia = () => {
-    setCompetencias([...competencias, { title: "", value: "" }]);
+    setCompetencias([...competencias, { title: "" }]);
     markAsChanged();
   };
 
@@ -193,23 +194,19 @@ export default function CharacterSheet() {
     setIsModalVisible(true);
   };
 
-  const handleSaveCharacteristica = (
-    type: "number" | "text",
-    value: string
-  ) => {
-    const newCharacteristica: Characteristicas = { title: value, type };
-    setCharacteristicas([...characteristicas, newCharacteristica]);
+  const handleSaveCharacteristica = (characteristica: Characteristicas) => {
+    setCharacteristicas([...characteristicas, characteristica]);
     setIsModalVisible(false);
     markAsChanged();
   };
 
   const handleCompetenciaChange = (
     index: number,
-    key: "title" | "value",
-    value: string
+    key: "title",
+    title: string
   ) => {
     const updatedCompetencias = [...competencias];
-    updatedCompetencias[index][key] = value;
+    updatedCompetencias[index][key] = title;
     setCompetencias(updatedCompetencias);
     markAsChanged();
   };
@@ -245,6 +242,59 @@ export default function CharacterSheet() {
     }
   };
 
+  const handleAddField = (fieldType: string) => {
+    if (fieldType === "competencia") {
+      handleAddCompetencia();
+    } else if (fieldType === "characteristica") {
+      handleAddCharacteristica();
+    } else if (fieldType === "imagen") {
+      pickImage();
+    }
+    setSections((prevSections) => [...prevSections, fieldType]);
+  };
+
+  const handleRemoveSection = (index: number) => {
+    const updatedSections = sections.filter((_, i) => i !== index);
+    setSections(updatedSections);
+    markAsChanged();
+  };
+
+  const renderSection = (type: string, index: number) => {
+    return (
+      <View key={`${type}-${index}`} style={styles.sectionContainer}>
+        {type === "imagen" && (
+          <ImageSection
+            imageUri={imageUri}
+            pickImage={pickImage}
+            deleteImage={deleteImage}
+            deletingImage={deletingImage}
+          />
+        )}
+        {type === "competencia" && (
+          <Competencias
+            competencias={competencias}
+            handleCompetenciaChange={handleCompetenciaChange}
+            handleRemoveCompetencia={handleRemoveCompetencia}
+            handleAddCompetencia={handleAddCompetencia}
+          />
+        )}
+        {type === "characteristica" && (
+          <CharacteristicasList
+            characteristicas={characteristicas}
+            handleRemoveCharacteristica={handleRemoveCharacteristica}
+            handleAddCharacteristica={() => setIsModalVisible(true)}
+          />
+        )}
+
+        {/* Delete Section Button */}
+        <Button
+          title="Eliminar Campo"
+          onPress={() => handleRemoveSection(index)}
+        />
+      </View>
+    );
+  };
+
   return (
     <ContainerUI
       header={
@@ -271,33 +321,43 @@ export default function CharacterSheet() {
               deleteImage={deleteImage}
               deletingImage={deletingImage}
             />
-
             <Competencias
               competencias={competencias}
               handleCompetenciaChange={handleCompetenciaChange}
               handleRemoveCompetencia={handleRemoveCompetencia}
               handleAddCompetencia={handleAddCompetencia}
             />
-          </View>
-
-          <View style={GlobalSheet.card}>
             <CharacteristicasList
               characteristicas={characteristicas}
               handleRemoveCharacteristica={handleRemoveCharacteristica}
-              handleAddCharacteristica={handleAddCharacteristica}
+              handleAddCharacteristica={() => setIsModalVisible(true)}
             />
+            {sections.map((sectionType, index) =>
+              renderSection(sectionType, index)
+            )}
           </View>
         </View>
+
         <AddCharacteristicaModal
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
           onSave={handleSaveCharacteristica}
         />
       </ScrollView>
-      <View style={styles.footer}>
-        <Button title="Eliminar Personaje" onPress={handleDelete} />
+      <View style={GlobalSheet.card}>
+        {/*<Button title="Eliminar Personaje" onPress={handleDelete} />*/}
+        <Button
+          title="Agregar Campo"
+          onPress={() => setIsAddFieldModalVisible(true)}
+        />
         <Button title="Guardar Personaje" onPress={handleSave} />
       </View>
+
+      <AddFieldModal
+        isVisible={isAddFieldModalVisible}
+        onClose={() => setIsAddFieldModalVisible(false)}
+        onConfirm={handleAddField}
+      />
     </ContainerUI>
   );
 }
@@ -334,5 +394,8 @@ const styles = StyleSheet.create({
     left: 80,
     flex: 1,
     alignItems: "center",
+  },
+  sectionContainer: {
+    marginBottom: 20,
   },
 });

@@ -12,7 +12,6 @@ interface CharacterData {
 
 interface Competencia {
   title: string;
-  value: string;
 }
 export interface Characteristicas {
   title: string;
@@ -58,10 +57,10 @@ const useStore = create<AppState>((set, get) => ({
         notes: null,
       },
     }),
-  data: [], // Initial state for character data
-  setData: (data) => set({ data }), // Action to update character data
-  currentCharacter: null, // Initial state for the current character
-  setCurrentCharacter: (character) => set({ currentCharacter: character }), // Action to set the current character
+  data: [],
+  setData: (data) => set({ data }), // Заменить полное состояние
+  currentCharacter: null,
+  setCurrentCharacter: (character) => set({ currentCharacter: character }),
   loadUserCharacters: async () => {
     const user = get().user;
     if (user.uid) {
